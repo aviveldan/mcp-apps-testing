@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World MCP App</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--background, #ffffff);
+      color: var(--foreground, #1a1a1a);
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      color: var(--primary, #6366f1);
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: var(--muted, #f3f4f6);
+      border: 1px solid var(--border, #e5e7eb);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    button {
+      background: var(--primary, #6366f1);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    #result {
+      margin-top: 15px;
+      padding: 10px;
+      background: var(--background, #ffffff);
+      border-radius: 6px;
+      border: 1px solid var(--border, #e5e7eb);
+      min-height: 50px;
+      white-space: pre-wrap;
+    }
+
+    .loading {
+      color: var(--secondary, #8b5cf6);
+    }
+
+    .error {
+      color: #ef4444;
+    }
+
+    .success {
+      color: #10b981;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Hello World MCP App</h1>
+    
+    <div class="card">
+      <p>This is a simple MCP application that demonstrates tool calling.</p>
+      <p style="margin-top: 10px;">Click the button below to call the "greet" tool.</p>
+    </div>
+
+    <button id="greetBtn" onclick="callGreetTool()">Call Greet Tool</button>
+    
+    <div id="result"></div>
+  </div>
+
+  <script>
+    // Simulate MCP tool call
+    async function callGreetTool() {
+      const btn = document.getElementById('greetBtn');
+      const result = document.getElementById('result');
+      
+      btn.disabled = true;
+      result.className = 'loading';
+      result.textContent = 'Calling greet tool...';
+
+      try {
+        // In a real MCP app, this would use the MCP SDK
+        // For this demo, we'll simulate an API call
+        const response = await fetch('/api/tools/call', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            jsonrpc: '2.0',
+            id: 1,
+            method: 'tools/call',
+            params: {
+              name: 'greet',
+              arguments: { name: 'World' }
+            }
+          })
+        }).catch(() => {
+          // Fallback for demo when no server is running
+          console.log('[Demo Mode] Using simulated response (no server running)');
+          return {
+            ok: true,
+            json: async () => ({
+              jsonrpc: '2.0',
+              id: 1,
+              result: {
+                content: [{
+                  type: 'text',
+                  text: 'Hello, World! Welcome to MCP Apps Testing Framework! [Demo Mode]'
+                }]
+              }
+            })
+          };
+        });
+
+        const data = await response.json();
+        
+        if (data.error) {
+          throw new Error(data.error.message);
+        }
+
+        result.className = 'success';
+        result.textContent = data.result.content[0].text;
+      } catch (error) {
+        result.className = 'error';
+        result.textContent = `Error: ${error.message}`;
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    // Allow theme customization via query params
+    const urlParams = new URLSearchParams(window.location.search);
+    const theme = urlParams.get('theme');
+    
+    if (theme === 'dark') {
+      document.documentElement.style.setProperty('--background', '#1a1a1a');
+      document.documentElement.style.setProperty('--foreground', '#ffffff');
+      document.documentElement.style.setProperty('--muted', '#374151');
+      document.documentElement.style.setProperty('--border', '#4b5563');
+    }
+  </script>
+</body>
+</html>
