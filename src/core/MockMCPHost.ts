@@ -285,7 +285,16 @@ export class MockMCPHost {
   /**
    * Enable protocol logging for debugging
    */
+  private protocolLoggingEnabled = false;
+  
   enableProtocolLogging(): void {
+    // Prevent duplicate logging interceptors
+    if (this.protocolLoggingEnabled) {
+      return;
+    }
+    
+    this.protocolLoggingEnabled = true;
+    
     this.interceptor.onRequest(async (request) => {
       console.log('[MCP Request]', JSON.stringify(request, null, 2));
       return request;

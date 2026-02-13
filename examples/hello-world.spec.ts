@@ -162,9 +162,9 @@ test.describe('Hello World MCP App', () => {
     // Capture console output
     const logs: string[] = [];
     const originalLog = console.log;
-    console.log = (...args: any[]) => {
-      logs.push(args.join(' '));
-      originalLog(...args);
+    console.log = (...logArgs: unknown[]) => {
+      logs.push(logArgs.join(' '));
+      originalLog(...logArgs);
     };
 
     host.enableProtocolLogging();

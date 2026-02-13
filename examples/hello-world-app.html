@@ -120,6 +120,7 @@
           })
         }).catch(() => {
           // Fallback for demo when no server is running
+          console.log('[Demo Mode] Using simulated response (no server running)');
           return {
             ok: true,
             json: async () => ({
@@ -128,7 +129,7 @@
               result: {
                 content: [{
                   type: 'text',
-                  text: 'Hello, World! Welcome to MCP Apps Testing Framework!'
+                  text: 'Hello, World! Welcome to MCP Apps Testing Framework! [Demo Mode]'
                 }]
               }
             })
