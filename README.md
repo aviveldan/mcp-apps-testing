@@ -6,11 +6,13 @@ The professional UI testing framework for Model Context Protocol (MCP) applicati
 
 **mcp-apps-testing** bridges the gap between MCP protocol testing and UI rendering/iframe sandboxing. It provides a comprehensive framework for testing MCP applications with Playwright, enabling you to:
 
-- ✅ Simulate IDE environments hosting MCP servers
+- ✅ Simulate IDE environments hosting MCP servers (Claude, VS Code, etc.)
 - ✅ Mock and intercept JSON-RPC 2.0 messages
 - ✅ Test MCP protocol interactions without a real server
 - ✅ Validate UI rendering and sandboxing behavior
 - ✅ Record and assert message flows
+- ✅ Test with different host profiles and themes
+- ✅ Fluent DSL for readable test code
 
 ## 🚀 Quick Start
 
@@ -18,6 +20,7 @@ The professional UI testing framework for Model Context Protocol (MCP) applicati
 
 ```bash
 npm install
+npx playwright install chromium
 ```
 
 ### Basic Usage
@@ -27,14 +30,39 @@ import { test, expect } from '@playwright/test';
 import { MockMCPHost } from 'mcp-apps-testing';
 
 test('MCP initialization', async () => {
-  const host = new MockMCPHost({ debug: true });
-  
-  const response = await host.initialize({
-    name: 'my-app',
-    version: '1.0.0',
+  // Zero-config setup with Claude profile
+  const host = new MockMCPHost({ 
+    hostProfile: 'Claude',
+    debug: true 
   });
   
+  await host.initialize({ name: 'my-app', version: '1.0.0' });
   expect(host.isInitialized()).toBe(true);
+  
+  await host.cleanup();
+});
+```
+
+### Fluent DSL Example
+
+```typescript
+test('Call tool with auto-retry', async () => {
+  const host = new MockMCPHost({ hostProfile: 'Claude' });
+  
+  // Mock tool response
+  host.getInterceptor().mockResponse('tools/call', (req) => ({
+    jsonrpc: '2.0',
+    id: req.id,
+    result: { content: [{ type: 'text', text: 'Success!' }] }
+  }));
+  
+  // Use fluent DSL with automatic retries
+  const response = await host.callTool('my-tool', { arg: 'value' }, {
+    timeout: 5000,
+    retries: 3
+  });
+  
+  expect(response.result.content[0].text).toBe('Success!');
   await host.cleanup();
 });
 ```
@@ -47,21 +75,31 @@ test('MCP initialization', async () => {
    - Handles common MCP protocol messages automatically
    - Supports capability configuration
    - Provides request/response simulation
+   - **NEW:** Fluent DSL methods with auto-retry
+   - **NEW:** Host profile simulation
 
 2. **TransportInterceptor** - Intercepts and mocks JSON-RPC messages
    - Request/response interception and modification
    - Method-specific response mocking
    - Complete message recording for assertions
 
+3. **Host Profiles** - Pre-configured host environments
+   - Claude AI profile with theme variables
+   - VS Code profile with constraints
+   - Generic profile for custom hosts
+
 ### Project Structure
 
 ```
 mcp-apps-testing/
 ├── src/              # Framework engine
-│   ├── core/         # Core classes (MockMCPHost, TransportInterceptor)
+│   ├── core/         # Core classes (MockMCPHost, TransportInterceptor, HostProfiles)
 │   ├── types/        # TypeScript type definitions
 │   └── index.ts      # Main exports
 ├── examples/         # Sample tests
+│   ├── basic-test.spec.ts        # Basic framework tests
+│   ├── hello-world.spec.ts       # Complete example with UI
+│   └── hello-world-app.html      # Sample MCP app
 ├── docs/             # Documentation
 ├── dist/             # Built output (generated)
 └── playwright.config.ts
@@ -77,6 +115,53 @@ The framework automatically responds to common MCP protocol messages:
 - `tools/list` - List available tools
 - `resources/list` - List available resources
 - `prompts/list` - List available prompts
+
+### Fluent DSL Methods
+
+Human-readable methods for common operations:
+
+```typescript
+const host = new MockMCPHost({ hostProfile: 'Claude' });
+
+// Call a tool with auto-retry
+await host.callTool('my-tool', { arg: 'value' }, { timeout: 5000, retries: 3 });
+
+// List tools
+await host.listTools();
+
+// Read a resource
+await host.readResource('file:///path/to/resource');
+
+// Get a prompt
+await host.getPrompt('my-prompt', { arg: 'value' });
+
+// List resources and prompts
+await host.listResources();
+await host.listPrompts();
+```
+
+### Host Profile Simulation
+
+Test against different AI host environments:
+
+```typescript
+import { MockMCPHost, HostProfiles, applyTheme } from 'mcp-apps-testing';
+
+// Use Claude profile
+const host = new MockMCPHost({ hostProfile: 'Claude' });
+const profile = host.getHostProfile();
+console.log(profile.name); // 'Claude'
+console.log(profile.capabilities); // { tools: { listChanged: true }, ... }
+
+// Apply theme to UI tests
+const themeCSS = applyTheme(HostProfiles.Claude, 'dark');
+await page.addStyleTag({ content: `:root { ${themeCSS} }` });
+```
+
+Available profiles:
+- **Claude**: Anthropic's Claude AI with full capabilities
+- **VSCode**: VS Code with editor-specific constraints
+- **Generic**: Default profile for custom hosts
 
 ### Custom Response Mocking
 
@@ -108,6 +193,22 @@ interceptor.onResponse(async (response) => {
 });
 ```
 
+### Protocol Logging
+
+Enable detailed logging for debugging:
+
+```typescript
+const host = new MockMCPHost({ debug: true });
+
+// Or enable later
+host.enableProtocolLogging();
+
+// Now all JSON-RPC messages will be logged to console
+await host.initialize();
+// [MCP Request] { "jsonrpc": "2.0", "method": "initialize", ... }
+// [MCP Response] { "jsonrpc": "2.0", "result": { ... } }
+```
+
 ### Message Recording and Assertions
 
 ```typescript
@@ -131,8 +232,9 @@ expect(toolRequests).toHaveLength(1);
 
 ```typescript
 const host = new MockMCPHost({
-  autoRespond: true,  // Auto-respond to common protocol messages
-  debug: true,        // Enable verbose logging
+  autoRespond: true,     // Auto-respond to common protocol messages
+  debug: true,           // Enable verbose logging
+  hostProfile: 'Claude', // Simulate a specific host environment
 });
 ```
 
@@ -146,11 +248,19 @@ host.setCapabilities({
 });
 ```
 
+### Playwright Configuration
+
+The framework comes with enhanced Playwright configuration:
+- **Trace Viewer**: Automatically enabled on test failures
+- **Screenshots**: Captured on failure
+- **Video Recording**: Available on failures for debugging
+- **Extended Timeouts**: 10s for async operations
+
 ## 📖 Documentation
 
 - [Getting Started Guide](docs/getting-started.md)
 - [API Reference](docs/api-reference.md)
-- [Example Tests](examples/)
+- [Hello World Example](examples/hello-world.spec.ts)
 
 ## 🧪 Running Tests
 
@@ -166,6 +276,24 @@ npm run build
 
 # Development mode with watch
 npm run dev
+
+# View test trace after failure
+npx playwright show-trace test-results/<trace-file>.zip
+```
+
+## 🎨 Testing UI with Different Themes
+
+```typescript
+test('test with Claude dark theme', async ({ page }) => {
+  await page.goto('file:///path/to/app.html');
+  
+  // Apply Claude dark theme
+  const themeCSS = applyTheme(HostProfiles.Claude, 'dark');
+  await page.addStyleTag({ content: `:root { ${themeCSS} }` });
+  
+  // Your UI tests here
+  await expect(page.locator('h1')).toBeVisible();
+});
 ```
 
 ## 🛠️ Tech Stack
@@ -181,6 +309,27 @@ npm run dev
 - `npm test` - Run Playwright tests
 - `npm run test:ui` - Run tests with Playwright UI
 - `npm run clean` - Remove build artifacts
+
+## ✨ What's New
+
+### Developer Experience
+- ✅ **Fluent DSL**: Human-readable methods like `callTool()`, `listTools()`, `readResource()`
+- ✅ **Auto-Retry**: Configurable retry logic with timeout support
+- ✅ **Zero-Config**: Works immediately with sensible defaults
+
+### Cross-Host Compatibility
+- ✅ **Host Profiles**: Pre-configured profiles for Claude, VS Code
+- ✅ **Theme Variables**: CSS variables for light/dark mode testing
+- ✅ **Constraints**: Viewport and protocol constraints per host
+
+### Observability
+- ✅ **Protocol Logging**: Detailed JSON-RPC message logging
+- ✅ **Trace Viewer**: Playwright trace integration
+- ✅ **Screenshots & Video**: Automatic capture on failures
+
+### Examples
+- ✅ **Hello World App**: Complete example with HTML UI
+- ✅ **Comprehensive Tests**: 16 passing tests demonstrating all features
 
 ## 🤝 Contributing
 
