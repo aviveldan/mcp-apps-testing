@@ -19,12 +19,15 @@ export type {
   MockMCPHostConfig,
   MCPCapabilities,
   MCPTestContext,
+  MCPTransport,
 } from './types';
+
+import type { MockMCPHostConfig, MCPTestContext } from './types';
 
 /**
  * Create a test context with a mock MCP host
  */
-export async function createMCPTestContext(config?: any): Promise<any> {
+export async function createMCPTestContext(config?: MockMCPHostConfig): Promise<MCPTestContext> {
   const { MockMCPHost } = await import('./core/MockMCPHost');
   const host = new MockMCPHost(config);
   const interceptor = host.getInterceptor();

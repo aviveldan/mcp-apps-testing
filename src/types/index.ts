@@ -41,6 +41,15 @@ export type RequestInterceptor = (request: JSONRPCRequest) => JSONRPCRequest | P
 export type ResponseInterceptor = (response: JSONRPCResponse) => JSONRPCResponse | Promise<JSONRPCResponse>;
 
 /**
+ * Transport interface for MCP communication
+ */
+export interface MCPTransport {
+  // Basic transport interface - can be extended as needed
+  send?: (message: unknown) => void | Promise<void>;
+  close?: () => void | Promise<void>;
+}
+
+/**
  * Mock MCP Host configuration
  */
 export interface MockMCPHostConfig {
@@ -52,7 +61,7 @@ export interface MockMCPHostConfig {
   /**
    * Custom transport implementation
    */
-  transport?: any;
+  transport?: MCPTransport;
   
   /**
    * Enable verbose logging
@@ -83,12 +92,12 @@ export interface MCPTestContext {
   /**
    * Mock host instance
    */
-  host: any;
+  host: import('../core/MockMCPHost').MockMCPHost;
   
   /**
    * Transport interceptor
    */
-  interceptor: any;
+  interceptor: import('../core/TransportInterceptor').TransportInterceptor;
   
   /**
    * Cleanup function
