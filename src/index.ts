@@ -7,6 +7,8 @@
 
 export { MockMCPHost } from './core/MockMCPHost';
 export { TransportInterceptor } from './core/TransportInterceptor';
+export { HostProfiles, ClaudeProfile, VSCodeProfile, GenericProfile, applyTheme } from './core/HostProfiles';
+export type { HostProfile } from './core/HostProfiles';
 
 export type {
   JSONRPCRequest,

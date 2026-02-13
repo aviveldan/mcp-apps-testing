@@ -2,6 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 
 /**
  * Playwright configuration for MCP Apps Testing
+ * Enhanced with trace viewer and protocol logging
  */
 export default defineConfig({
   testDir: './examples',
@@ -18,16 +19,25 @@ export default defineConfig({
   // Opt out of parallel tests on CI
   workers: process.env.CI ? 1 : undefined,
   
-  // Reporter to use
-  reporter: 'html',
+  // Reporter to use - includes HTML and list for better debugging
+  reporter: [
+    ['html'],
+    ['list'],
+  ],
   
   // Shared settings for all the projects below
   use: {
-    // Base URL to use in actions like `await page.goto('/')`
-    // baseURL: 'http://127.0.0.1:3000',
-    
-    // Collect trace when retrying the failed test
+    // Collect trace on first retry and on failure for debugging
     trace: 'on-first-retry',
+    
+    // Take screenshot on failure
+    screenshot: 'only-on-failure',
+    
+    // Record video on first retry
+    video: 'retain-on-failure',
+    
+    // Extended timeout for async operations
+    actionTimeout: 10000,
   },
 
   // Configure projects for major browsers

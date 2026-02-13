@@ -1,5 +1,6 @@
 import { TransportInterceptor } from './TransportInterceptor';
 import { MockMCPHostConfig, MCPCapabilities, JSONRPCRequest, JSONRPCResponse } from '../types';
+import { HostProfiles, HostProfile } from './HostProfiles';
 
 /**
  * MockMCPHost - Simulates an IDE environment hosting an MCP server
@@ -9,6 +10,7 @@ import { MockMCPHostConfig, MCPCapabilities, JSONRPCRequest, JSONRPCResponse } f
  * - Automatic handling of common MCP protocol messages
  * - Integration with TransportInterceptor for request/response mocking
  * - Capability simulation (tools, resources, prompts)
+ * - Host profile simulation (Claude, VS Code, etc.)
  */
 export class MockMCPHost {
   private interceptor: TransportInterceptor;
@@ -16,6 +18,7 @@ export class MockMCPHost {
   private capabilities: MCPCapabilities;
   private initialized = false;
   private requestIdCounter = 0;
+  private hostProfile: HostProfile | null = null;
 
   constructor(config: MockMCPHostConfig = {}) {
     this.config = {
@@ -27,9 +30,32 @@ export class MockMCPHost {
     this.interceptor = new TransportInterceptor(this.config.debug);
     this.capabilities = {};
 
+    // Load host profile if specified
+    if (this.config.hostProfile) {
+      this.loadHostProfile(this.config.hostProfile);
+    }
+
     if (this.config.autoRespond) {
       this.setupAutoResponders();
     }
+  }
+
+  /**
+   * Load a host profile
+   */
+  private loadHostProfile(profileName: string): void {
+    const profile = HostProfiles[profileName as keyof typeof HostProfiles];
+    if (profile) {
+      this.hostProfile = profile;
+      this.capabilities = profile.capabilities;
+    }
+  }
+
+  /**
+   * Get the current host profile
+   */
+  getHostProfile(): HostProfile | null {
+    return this.hostProfile;
   }
 
   /**
@@ -177,5 +203,97 @@ export class MockMCPHost {
    */
   clearRecordedMessages(): void {
     this.interceptor.clearRecordedMessages();
+  }
+
+  /**
+   * Fluent DSL: Call a tool with automatic response handling
+   * @param name Tool name
+   * @param args Tool arguments
+   * @param options Optional retry and timeout settings
+   */
+  async callTool(
+    name: string,
+    args: Record<string, unknown> = {},
+    options: { timeout?: number; retries?: number } = {}
+  ): Promise<JSONRPCResponse> {
+    const { timeout = 5000, retries = 3 } = options;
+    let lastError: Error | null = null;
+
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      try {
+        const response = await Promise.race([
+          this.sendRequest('tools/call', { name, arguments: args }),
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error('Tool call timeout')), timeout)
+          ),
+        ]);
+
+        if (response.error) {
+          throw new Error(response.error.message);
+        }
+
+        return response;
+      } catch (error) {
+        lastError = error as Error;
+        if (attempt < retries) {
+          await new Promise(resolve => setTimeout(resolve, 100 * (attempt + 1)));
+        }
+      }
+    }
+
+    throw new Error(`Tool call failed after ${retries + 1} attempts: ${lastError?.message}`);
+  }
+
+  /**
+   * Fluent DSL: List available tools
+   */
+  async listTools(): Promise<JSONRPCResponse> {
+    return await this.sendRequest('tools/list');
+  }
+
+  /**
+   * Fluent DSL: Read a resource
+   * @param uri Resource URI
+   */
+  async readResource(uri: string): Promise<JSONRPCResponse> {
+    return await this.sendRequest('resources/read', { uri });
+  }
+
+  /**
+   * Fluent DSL: List available resources
+   */
+  async listResources(): Promise<JSONRPCResponse> {
+    return await this.sendRequest('resources/list');
+  }
+
+  /**
+   * Fluent DSL: Get a prompt
+   * @param name Prompt name
+   * @param args Prompt arguments
+   */
+  async getPrompt(name: string, args: Record<string, unknown> = {}): Promise<JSONRPCResponse> {
+    return await this.sendRequest('prompts/get', { name, arguments: args });
+  }
+
+  /**
+   * Fluent DSL: List available prompts
+   */
+  async listPrompts(): Promise<JSONRPCResponse> {
+    return await this.sendRequest('prompts/list');
+  }
+
+  /**
+   * Enable protocol logging for debugging
+   */
+  enableProtocolLogging(): void {
+    this.interceptor.onRequest(async (request) => {
+      console.log('[MCP Request]', JSON.stringify(request, null, 2));
+      return request;
+    });
+
+    this.interceptor.onResponse(async (response) => {
+      console.log('[MCP Response]', JSON.stringify(response, null, 2));
+      return response;
+    });
   }
 }

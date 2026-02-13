@@ -67,6 +67,11 @@ export interface MockMCPHostConfig {
    * Enable verbose logging
    */
   debug?: boolean;
+
+  /**
+   * Host profile to simulate (e.g., 'Claude', 'VSCode', 'Generic')
+   */
+  hostProfile?: string;
 }
 
 /**
