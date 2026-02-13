@@ -13,7 +13,7 @@ Creates a new MockMCPHost instance.
 **Parameters:**
 - `config.autoRespond` (boolean): Automatically respond to common MCP messages. Default: `true`
 - `config.debug` (boolean): Enable verbose logging. Default: `false`
-- `config.transport` (any): Custom transport implementation
+- `config.transport` (MCPTransport): Custom transport implementation
 
 ### Methods
 
@@ -217,7 +217,7 @@ interface MCPCapabilities {
 ```typescript
 interface MockMCPHostConfig {
   autoRespond?: boolean;
-  transport?: any;
+  transport?: MCPTransport;
   debug?: boolean;
 }
 ```

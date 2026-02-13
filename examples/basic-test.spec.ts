@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { MockMCPHost, TransportInterceptor } from '../src';
+import { MockMCPHost, TransportInterceptor, JSONRPCRequest } from '../src';
 
 /**
  * Example test demonstrating the MCP Apps Testing Framework
@@ -46,7 +46,7 @@ test.describe('MCP Apps Testing Framework - Example', () => {
 
   test('should mock custom tool responses', async () => {
     // Mock a custom tool response
-    interceptor.mockResponse('tools/call', (request: any) => ({
+    interceptor.mockResponse('tools/call', (request: JSONRPCRequest) => ({
       jsonrpc: '2.0',
       id: request.id,
       result: {
@@ -72,7 +72,7 @@ test.describe('MCP Apps Testing Framework - Example', () => {
 
   test('should intercept and record messages', async () => {
     // Add a request interceptor to log all requests
-    const requests: any[] = [];
+    const requests: JSONRPCRequest[] = [];
     interceptor.onRequest(async (request) => {
       requests.push(request);
       return request;
