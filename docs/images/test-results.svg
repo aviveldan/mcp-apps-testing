@@ -1,0 +1,57 @@
+<svg width="800" height="400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .bg { fill: #0f172a; }
+      .text { font-family: 'Monaco', 'Menlo', 'Consolas', monospace; font-size: 13px; fill: #e2e8f0; }
+      .success { fill: #10b981; }
+      .summary { fill: #60a5fa; font-weight: bold; }
+      .checkmark { fill: #10b981; }
+    </style>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="800" height="400" class="bg" rx="8"/>
+  
+  <!-- Title -->
+  <text x="20" y="30" class="summary" style="font-size: 16px;">Running 16 tests using 1 worker</text>
+  
+  <!-- Test Results -->
+  <text x="20" y="60" class="text">
+    <tspan class="checkmark">✓</tspan>  1 [chromium] › basic-test.spec.ts:29:7 › should initialize MCP connection (14ms)
+  </text>
+  <text x="20" y="80" class="text">
+    <tspan class="checkmark">✓</tspan>  2 [chromium] › basic-test.spec.ts:47:7 › should mock custom tool responses (2ms)
+  </text>
+  <text x="20" y="100" class="text">
+    <tspan class="checkmark">✓</tspan>  3 [chromium] › basic-test.spec.ts:73:7 › should intercept and record messages (5ms)
+  </text>
+  <text x="20" y="120" class="text">
+    <tspan class="checkmark">✓</tspan>  4 [chromium] › basic-test.spec.ts:97:7 › should handle custom capabilities (2ms)
+  </text>
+  <text x="20" y="140" class="text">
+    <tspan class="checkmark">✓</tspan>  5 [chromium] › basic-test.spec.ts:114:7 › should find requests by method (2ms)
+  </text>
+  <text x="20" y="160" class="text">
+    <tspan class="checkmark">✓</tspan>  6 [chromium] › hello-world.spec.ts:64:7 › should initialize and list tools (2ms)
+  </text>
+  <text x="20" y="180" class="text">
+    <tspan class="checkmark">✓</tspan>  7 [chromium] › hello-world.spec.ts:75:7 › should call greet tool using fluent DSL (1ms)
+  </text>
+  <text x="20" y="200" class="text">
+    <tspan class="checkmark">✓</tspan>  8 [chromium] › hello-world.spec.ts:96:7 › should render UI with Claude light theme (263ms)
+  </text>
+  <text x="20" y="220" class="text">
+    <tspan class="checkmark">✓</tspan>  9 [chromium] › hello-world.spec.ts:119:7 › should render UI with Claude dark theme (242ms)
+  </text>
+  <text x="20" y="240" class="text">
+    <tspan class="checkmark">✓</tspan>  10 [chromium] › hello-world.spec.ts:134:7 › should handle tool call button interaction (279ms)
+  </text>
+  <text x="20" y="260" class="text">...</text>
+  
+  <!-- Summary -->
+  <rect x="20" y="290" width="760" height="80" fill="#1e293b" rx="5" stroke="#334155" stroke-width="1"/>
+  <text x="40" y="320" class="success" style="font-size: 24px; font-weight: bold;">16 passed (2.5s)</text>
+  <text x="40" y="350" class="text" style="font-size: 12px; fill: #94a3b8;">
+    All tests passed successfully with protocol logging, message recording, and UI validation
+  </text>
+</svg>
