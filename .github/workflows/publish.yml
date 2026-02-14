@@ -32,5 +32,6 @@ jobs:
       - name: Run tests
         run: npm test
       
+      # Publish using OIDC Trusted Publishing (requires id-token: write permission)
       - name: Publish to npm
         run: npm publish --provenance
