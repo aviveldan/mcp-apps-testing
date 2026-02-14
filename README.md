@@ -22,8 +22,10 @@ await host.callTool('greet', { name: 'World' });
 
 ## Quick Start
 
+### Installation
+
 ```bash
-npm install
+npm install mcp-apps-testing @playwright/test
 npx playwright install chromium
 ```
 
