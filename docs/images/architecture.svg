@@ -1,0 +1,73 @@
+<svg width="800" height="500" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .box { fill: #6366f1; stroke: #4338ca; stroke-width: 2; }
+      .box-light { fill: #e0e7ff; stroke: #6366f1; stroke-width: 2; }
+      .text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; fill: white; }
+      .text-dark { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; fill: #1e293b; }
+      .title { font-size: 18px; font-weight: bold; }
+      .arrow { stroke: #64748b; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .label { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 12px; fill: #64748b; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#64748b" />
+    </marker>
+  </defs>
+  
+  <!-- Title -->
+  <text x="400" y="30" text-anchor="middle" class="text-dark title">mcp-apps-testing Architecture</text>
+  
+  <!-- Your MCP Application -->
+  <rect x="300" y="60" width="200" height="60" class="box-light" rx="5"/>
+  <text x="400" y="85" text-anchor="middle" class="text-dark">Your MCP Application</text>
+  <text x="400" y="105" text-anchor="middle" class="label">(HTML + JavaScript)</text>
+  
+  <!-- Arrow -->
+  <path d="M 400 120 L 400 160" class="arrow"/>
+  <text x="420" y="145" class="label">JSON-RPC 2.0</text>
+  
+  <!-- TransportInterceptor -->
+  <rect x="250" y="160" width="300" height="80" class="box" rx="5"/>
+  <text x="400" y="185" text-anchor="middle" class="text title">TransportInterceptor</text>
+  <text x="400" y="210" text-anchor="middle" class="text">Mock & Record Messages</text>
+  <text x="400" y="228" text-anchor="middle" class="text" style="font-size: 12px;">Request/Response Interception</text>
+  
+  <!-- Arrow -->
+  <path d="M 400 240 L 400 280" class="arrow"/>
+  <text x="420" y="265" class="label">Simulated</text>
+  
+  <!-- MockMCPHost -->
+  <rect x="250" y="280" width="300" height="100" class="box" rx="5"/>
+  <text x="400" y="305" text-anchor="middle" class="text title">MockMCPHost</text>
+  <text x="400" y="330" text-anchor="middle" class="text">Simulate IDE Environment</text>
+  <text x="400" y="350" text-anchor="middle" class="text" style="font-size: 12px;">Auto-respond to Protocol Messages</text>
+  <text x="400" y="368" text-anchor="middle" class="text" style="font-size: 12px;">Fluent DSL Methods</text>
+  
+  <!-- Host Profiles Box -->
+  <rect x="580" y="280" width="180" height="100" class="box-light" rx="5"/>
+  <text x="670" y="305" text-anchor="middle" class="text-dark" style="font-weight: bold;">Host Profiles</text>
+  <text x="670" y="330" text-anchor="middle" class="label">Claude</text>
+  <text x="670" y="350" text-anchor="middle" class="label">VS Code</text>
+  <text x="670" y="370" text-anchor="middle" class="label">Generic</text>
+  
+  <!-- Arrow from Host to Profiles -->
+  <path d="M 550 330 L 580 330" class="arrow"/>
+  
+  <!-- Playwright Box -->
+  <rect x="40" y="280" width="180" height="100" class="box-light" rx="5"/>
+  <text x="130" y="305" text-anchor="middle" class="text-dark" style="font-weight: bold;">Playwright</text>
+  <text x="130" y="330" text-anchor="middle" class="label">Browser Automation</text>
+  <text x="130" y="350" text-anchor="middle" class="label">UI Testing</text>
+  <text x="130" y="370" text-anchor="middle" class="label">Screenshots</text>
+  
+  <!-- Arrow from Playwright to Host -->
+  <path d="M 220 330 L 250 330" class="arrow"/>
+  
+  <!-- Test Results Box -->
+  <rect x="275" y="410" width="250" height="60" class="box-light" rx="5"/>
+  <text x="400" y="435" text-anchor="middle" class="text-dark" style="font-weight: bold;">Test Results & Assertions</text>
+  <text x="400" y="455" text-anchor="middle" class="label">Message Recording • Protocol Logging • Traces</text>
+  
+  <!-- Arrow from Host to Results -->
+  <path d="M 400 380 L 400 410" class="arrow"/>
+</svg>

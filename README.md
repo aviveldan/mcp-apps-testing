@@ -2,19 +2,35 @@
 
 The professional UI testing framework for Model Context Protocol (MCP) applications. Validate rendering, sandboxing, and JSON-RPC interactions in a simulated host environment.
 
-## 🎯 Overview
+## Overview
 
 **mcp-apps-testing** bridges the gap between MCP protocol testing and UI rendering/iframe sandboxing. It provides a comprehensive framework for testing MCP applications with Playwright, enabling you to:
 
-- ✅ Simulate IDE environments hosting MCP servers (Claude, VS Code, etc.)
-- ✅ Mock and intercept JSON-RPC 2.0 messages
-- ✅ Test MCP protocol interactions without a real server
-- ✅ Validate UI rendering and sandboxing behavior
-- ✅ Record and assert message flows
-- ✅ Test with different host profiles and themes
-- ✅ Fluent DSL for readable test code
+- Simulate IDE environments hosting MCP servers (Claude, VS Code, etc.)
+- Mock and intercept JSON-RPC 2.0 messages
+- Test MCP protocol interactions without a real server
+- Validate UI rendering and sandboxing behavior
+- Record and assert message flows
+- Test with different host profiles and themes
+- Fluent DSL for readable test code
 
-## 🚀 Quick Start
+### Example Application
+
+The framework includes a sample "Hello World" MCP application demonstrating UI rendering and tool calling:
+
+**Light Mode:**
+
+![Hello World App - Light Mode](docs/images/hello-world-light.png)
+
+**Dark Mode:**
+
+![Hello World App - Dark Mode](docs/images/hello-world-dark.png)
+
+**Tool Call in Action:**
+
+![Tool Call Result](docs/images/hello-world-result.png)
+
+## Quick Start
 
 ### Installation
 
@@ -67,7 +83,11 @@ test('Call tool with auto-retry', async () => {
 });
 ```
 
-## 🏗️ Architecture
+## Architecture
+
+The framework consists of three main components that work together to provide comprehensive MCP application testing:
+
+![Architecture Diagram](docs/images/architecture.svg)
 
 ### Core Components
 
@@ -105,7 +125,7 @@ mcp-apps-testing/
 └── playwright.config.ts
 ```
 
-## 📚 Key Features
+## Key Features
 
 ### Automatic Protocol Handling
 
@@ -226,7 +246,7 @@ const toolRequests = interceptor.findRequestsByMethod('tools/list');
 expect(toolRequests).toHaveLength(1);
 ```
 
-## 🔧 Configuration
+## Configuration
 
 ### MockMCPHost Options
 
@@ -256,13 +276,13 @@ The framework comes with enhanced Playwright configuration:
 - **Video Recording**: Available on failures for debugging
 - **Extended Timeouts**: 10s for async operations
 
-## 📖 Documentation
+## Documentation
 
 - [Getting Started Guide](docs/getting-started.md)
 - [API Reference](docs/api-reference.md)
 - [Hello World Example](examples/hello-world.spec.ts)
 
-## 🧪 Running Tests
+## Running Tests
 
 ```bash
 # Run all tests
@@ -281,7 +301,13 @@ npm run dev
 npx playwright show-trace test-results/<trace-file>.zip
 ```
 
-## 🎨 Testing UI with Different Themes
+### Test Results Example
+
+The framework provides comprehensive test coverage with detailed output:
+
+![Test Results](docs/images/test-results.svg)
+
+## Testing UI with Different Themes
 
 ```typescript
 test('test with Claude dark theme', async ({ page }) => {
@@ -296,13 +322,13 @@ test('test with Claude dark theme', async ({ page }) => {
 });
 ```
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **TypeScript** - Type-safe framework development
 - **Playwright** - UI testing and browser automation
 - **@modelcontextprotocol/sdk** - MCP protocol implementation
 
-## 📦 Package Scripts
+## Package Scripts
 
 - `npm run build` - Compile TypeScript to JavaScript
 - `npm run dev` - Watch mode for development
@@ -310,36 +336,36 @@ test('test with Claude dark theme', async ({ page }) => {
 - `npm run test:ui` - Run tests with Playwright UI
 - `npm run clean` - Remove build artifacts
 
-## ✨ What's New
+## What's New
 
 ### Developer Experience
-- ✅ **Fluent DSL**: Human-readable methods like `callTool()`, `listTools()`, `readResource()`
-- ✅ **Auto-Retry**: Configurable retry logic with timeout support
-- ✅ **Zero-Config**: Works immediately with sensible defaults
+- **Fluent DSL**: Human-readable methods like `callTool()`, `listTools()`, `readResource()`
+- **Auto-Retry**: Configurable retry logic with timeout support
+- **Zero-Config**: Works immediately with sensible defaults
 
 ### Cross-Host Compatibility
-- ✅ **Host Profiles**: Pre-configured profiles for Claude, VS Code
-- ✅ **Theme Variables**: CSS variables for light/dark mode testing
-- ✅ **Constraints**: Viewport and protocol constraints per host
+- **Host Profiles**: Pre-configured profiles for Claude, VS Code
+- **Theme Variables**: CSS variables for light/dark mode testing
+- **Constraints**: Viewport and protocol constraints per host
 
 ### Observability
-- ✅ **Protocol Logging**: Detailed JSON-RPC message logging
-- ✅ **Trace Viewer**: Playwright trace integration
-- ✅ **Screenshots & Video**: Automatic capture on failures
+- **Protocol Logging**: Detailed JSON-RPC message logging
+- **Trace Viewer**: Playwright trace integration
+- **Screenshots & Video**: Automatic capture on failures
 
 ### Examples
-- ✅ **Hello World App**: Complete example with HTML UI
-- ✅ **Comprehensive Tests**: 16 passing tests demonstrating all features
+- **Hello World App**: Complete example with HTML UI
+- **Comprehensive Tests**: 16 passing tests demonstrating all features
 
-## 🤝 Contributing
+## Contributing
 
 This is a professional framework designed for MCP UI application testing. Contributions should maintain the modular, extensible architecture and focus on the core testing capabilities.
 
-## 📄 License
+## License
 
 MIT
 
-## 🔗 Related Projects
+## Related Projects
 
 - [Model Context Protocol](https://modelcontextprotocol.io/) - Official MCP specification
 - [Playwright](https://playwright.dev/) - Browser testing framework
