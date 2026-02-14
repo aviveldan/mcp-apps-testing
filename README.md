@@ -121,22 +121,26 @@ npm run dev           # Development mode with watch
 
 ## Publishing
 
-This package is ready to be published to npm. To publish a new version:
+This package is automatically published to npm via GitHub Actions when a new release is created.
+
+### Publishing a New Version
 
 1. Update the version in `package.json` following [semantic versioning](https://semver.org/)
-2. Build and test the package:
-   ```bash
-   npm run build
-   npm test
-   ```
-3. Test the package contents locally:
-   ```bash
-   npm pack --dry-run
-   ```
-4. Publish to npm:
-   ```bash
-   npm publish
-   ```
+2. Commit and push the version change
+3. Create a new GitHub release with a tag matching the version (e.g., `v0.1.0`)
+4. The GitHub Actions workflow will automatically:
+   - Build the package
+   - Run tests
+   - Publish to npm using the `NPM_TOKEN` secret
+
+### Manual Publishing (if needed)
+
+To publish manually:
+```bash
+npm run build
+npm test
+npm publish
+```
 
 The `prepublishOnly` script ensures a clean build is created before publishing.
 
