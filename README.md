@@ -119,6 +119,27 @@ npm run build         # Build the framework
 npm run dev           # Development mode with watch
 ```
 
+## Publishing
+
+This package is ready to be published to npm. To publish a new version:
+
+1. Update the version in `package.json` following [semantic versioning](https://semver.org/)
+2. Build and test the package:
+   ```bash
+   npm run build
+   npm test
+   ```
+3. Test the package contents locally:
+   ```bash
+   npm pack --dry-run
+   ```
+4. Publish to npm:
+   ```bash
+   npm publish
+   ```
+
+The `prepublishOnly` script ensures a clean build is created before publishing.
+
 ## Contributing
 
 This framework is designed for professional MCP UI application testing. Contributions should maintain the modular architecture and focus on core testing capabilities.
