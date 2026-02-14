@@ -6,7 +6,7 @@
 [![Node.js Version](https://img.shields.io/node/v/mcp-apps-testing.svg)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
 
-**The first UI testing framework built specifically for Model Context Protocol applications.** Test your MCP apps exactly how users experience them—with real browser rendering, simulated IDE environments, and complete JSON-RPC message control.
+mcp-apps-testing is a testing framework for MCP Apps external UI (ext-apps). It validates the full lifecycle of UI components returned by MCP tools — from tool response metadata, through client UI loading, to runtime widget behavior and host communication. Unlike generic MCP testing libraries, it focuses specifically on UI rendering, iframe sandbox integration, and UI ↔ host messaging.
 
 ![Hello World App](docs/images/hello-world-result.png)
 
