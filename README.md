@@ -131,7 +131,7 @@ This package is automatically published to npm via GitHub Actions when a new rel
 4. The GitHub Actions workflow will automatically:
    - Build the package
    - Run tests
-   - Publish to npm using the `NPM_TOKEN` secret
+   - Publish to npm using the `NPM_PAT` secret from the `npm-publish` environment
 
 ### Manual Publishing (if needed)
 
