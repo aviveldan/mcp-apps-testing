@@ -24,8 +24,10 @@ await host.callTool('greet', { name: 'World' });
 
 ### Installation
 
+Install the package along with its peer dependency:
+
 ```bash
-npm install mcp-apps-testing @playwright/test
+npm install mcp-apps-testing @playwright/test --save-dev
 npx playwright install chromium
 ```
 
