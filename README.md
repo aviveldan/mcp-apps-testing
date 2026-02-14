@@ -127,4 +127,4 @@ MIT
 
 **Built with:** TypeScript • Playwright • [@modelcontextprotocol/sdk](https://github.com/modelcontextprotocol/typescript-sdk)
 
-**Learn more:** [Model Context Protocol](https://modelcontextprotocol.io/) • [Playlist](https://playwright.dev/)
+**Learn more:** [Model Context Protocol](https://modelcontextprotocol.io/) • [Playwright](https://playwright.dev/)
