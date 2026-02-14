@@ -1,6 +1,6 @@
 # mcp-apps-testing
 
-**The only UI testing framework built specifically for Model Context Protocol applications.** Test your MCP apps exactly how users experience them—with real browser rendering, simulated IDE environments, and complete JSON-RPC message control.
+**The first UI testing framework built specifically for Model Context Protocol applications.** Test your MCP apps exactly how users experience them—with real browser rendering, simulated IDE environments, and complete JSON-RPC message control.
 
 ![Hello World App](docs/images/hello-world-result.png)
 
@@ -17,7 +17,7 @@ await host.callTool('greet', { name: 'World' });
 **What Makes It Unique**
 - **Host Simulation**: Test against Claude, VS Code, or custom IDE profiles with different capabilities and themes
 - **Full Control**: Mock, intercept, and assert on every JSON-RPC message
-- **UI + Protocol**: The only framework that tests both UI rendering AND protocol interactions together
+- **UI + Protocol**: Tests both UI rendering AND protocol interactions in a single framework
 - **Fluent API**: Human-readable test code with auto-retry and intelligent defaults
 
 ## Quick Start
