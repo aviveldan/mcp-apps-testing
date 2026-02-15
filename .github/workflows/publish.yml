@@ -3,9 +3,87 @@ name: Publish to npm
 on:
   release:
     types: [created]
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+      
+      - name: Build
+        run: npm run build
+      
+      - name: Run all tests
+        run: npm test
+      
+      - name: Validate host profiles
+        run: |
+          node -e "
+          const { validateHostProfile, loadHostProfileByName } = require('./dist/index.js');
+          const path = require('path');
+          
+          console.log('Validating Claude profile...');
+          const claudeProfile = loadHostProfileByName('claude', '1.0.0', path.join(__dirname, 'profiles'));
+          const claudeValidation = validateHostProfile(claudeProfile);
+          if (!claudeValidation.valid) {
+            console.error('Claude profile validation failed:', claudeValidation.errors);
+            process.exit(1);
+          }
+          console.log('✓ Claude profile is valid');
+          
+          console.log('Validating VS Code profile...');
+          const vscodeProfile = loadHostProfileByName('vscode', '1.0.0', path.join(__dirname, 'profiles'));
+          const vscodeValidation = validateHostProfile(vscodeProfile);
+          if (!vscodeValidation.valid) {
+            console.error('VS Code profile validation failed:', vscodeValidation.errors);
+            process.exit(1);
+          }
+          console.log('✓ VS Code profile is valid');
+          "
+      
+      - name: Validate recorded sessions
+        run: |
+          node -e "
+          const { SessionPlayer, loadSession } = require('./dist/index.js');
+          const fs = require('fs');
+          const path = require('path');
+          
+          const sessions = ['claude-basic-flow', 'vscode-basic-flow'];
+          
+          for (const sessionName of sessions) {
+            console.log(\`Validating \${sessionName} session...\`);
+            const sessionPath = path.join(__dirname, 'profiles/sessions', \`\${sessionName}.json\`);
+            const sessionJson = fs.readFileSync(sessionPath, 'utf-8');
+            const session = loadSession(sessionJson);
+            const player = new SessionPlayer(session);
+            const validation = player.validateSession();
+            
+            if (!validation.valid) {
+              console.error(\`Session \${sessionName} validation failed:\`, validation.errors);
+              process.exit(1);
+            }
+            console.log(\`✓ \${sessionName} session is valid\`);
+          }
+          "
+
   publish:
+    needs: test
+    if: github.event_name == 'release'
     runs-on: ubuntu-latest
     environment: npm-publish
     permissions:
@@ -23,14 +101,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
       
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps
-      
       - name: Build
         run: npm run build
-      
-      - name: Run tests
-        run: npm test
       
       # Publish using OIDC Trusted Publishing (requires id-token: write permission)
       - name: Publish to npm

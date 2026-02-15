@@ -11,7 +11,8 @@
     "test:ui": "playwright test --ui",
     "lint": "eslint src --ext .ts",
     "clean": "rm -rf dist",
-    "prepublishOnly": "npm run clean && npm run build"
+    "prepublishOnly": "npm run clean && npm run build",
+    "validate:profiles": "node scripts/validate-profiles.js"
   },
   "keywords": [
     "mcp",
@@ -33,6 +34,7 @@
   "homepage": "https://github.com/aviveldan/mcp-apps-testing#readme",
   "files": [
     "dist",
+    "profiles",
     "README.md",
     "LICENSE"
   ],
