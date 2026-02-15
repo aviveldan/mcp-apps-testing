@@ -96,7 +96,7 @@ test('should mock tool call', async () => {
 });
 ```
 
-### 3. Testing with Host Profiles
+### 4. Testing with Host Profiles
 
 ```typescript
 test('should test with Claude profile', async () => {
@@ -120,7 +120,7 @@ test('should test with VS Code profile', async () => {
 });
 ```
 
-### 4. Testing UI with Themes
+### 5. Testing UI with Themes
 
 ```typescript
 import { HostProfiles, applyTheme } from 'mcp-apps-testing';
@@ -137,7 +137,7 @@ test('should render with Claude dark theme', async ({ page }) => {
 });
 ```
 
-### 5. Protocol Logging
+### 6. Protocol Logging
 
 ```typescript
 test('should debug with protocol logging', async () => {
@@ -155,7 +155,7 @@ test('should debug with protocol logging', async () => {
 });
 ```
 
-### 6. Intercepting Messages
+### 7. Intercepting Messages
 
 ```typescript
 test('should intercept and record messages', async () => {
