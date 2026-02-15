@@ -89,12 +89,11 @@ export class ReferenceHost {
    */
   async sendMessage(message: JSONRPCResponse | JSONRPCNotification): Promise<void> {
     await this.page.evaluate(
-      (msg, targetOrigin) => {
+      ({ msg, targetOrigin }) => {
         const iframe = document.getElementById('mcp-app-frame') as HTMLIFrameElement;
         iframe.contentWindow?.postMessage(msg, targetOrigin);
       },
-      message,
-      HOST_ORIGIN
+      { msg: message, targetOrigin: HOST_ORIGIN }
     );
   }
 
