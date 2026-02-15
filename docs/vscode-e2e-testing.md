@@ -10,8 +10,8 @@ host-specific bugs that sandbox tests can't find.
 
 | Layer | Tool | Speed | Coverage | Use for |
 |-------|------|-------|----------|---------|
-| 1 | `MockMCPHost` | ⚡ Instant | Protocol only | Every PR — unit tests |
-| 2 | `ReferenceHost` | Fast (~2s) | ~90% of real behavior | Every PR — E2E sandbox |
+| 1 | `MockMCPHost` | ⚡ Instant | Protocol only (simulated) | Every PR — unit tests |
+| 2 | `ReferenceHost` | Fast (~2s) | Spec-compliant browser impl | Every PR — E2E sandbox |
 | **3** | **`VSCodeHost`** | Slow (~30s) | **100% real VS Code** | **Nightly / release gate** |
 
 Use `VSCodeHost` when you need to verify:

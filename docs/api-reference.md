@@ -2,6 +2,8 @@
 
 ## MockMCPHost
 
+**Note**: MockMCPHost is a simulated MCP host for unit testing. It does NOT connect to real Claude Desktop, VS Code, or other IDEs. For real environment testing, use `VSCodeHost` or `ReferenceHost`.
+
 ### Constructor
 
 ```typescript

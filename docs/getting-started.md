@@ -4,6 +4,11 @@
 
 The MCP Apps Testing Framework provides a comprehensive solution for testing Model Context Protocol (MCP) applications. It bridges the gap between MCP protocol testing and UI rendering/iframe sandboxing.
 
+**Important**: This framework provides three testing approaches:
+1. **Unit Testing** - Use `MockMCPHost` with simulated host profiles (VSCode, Claude-like, Generic). These are NOT real IDE connections.
+2. **Browser E2E Testing** - Use `ReferenceHost` for spec-compliant browser-based testing with real iframe sandboxing.
+3. **Real Environment Testing** - Use `VSCodeHost` to test in a real VS Code instance via Playwright Electron.
+
 ## Installation
 
 ```bash
@@ -23,7 +28,8 @@ test.describe('My MCP App Tests', () => {
   let host: MockMCPHost;
 
   test.beforeEach(async () => {
-    // Zero-config setup with Claude profile
+    // Zero-config setup with a simulated Claude-like profile
+    // Note: This is a simulated profile for unit testing, NOT a real Claude connection
     host = new MockMCPHost({ 
       hostProfile: 'Claude',
       debug: true 
@@ -98,8 +104,11 @@ test('should mock tool call', async () => {
 
 ### 4. Testing with Host Profiles
 
+Host profiles are simulated configurations for unit testing. They provide capabilities, themes, and constraints typical of different environments.
+
 ```typescript
-test('should test with Claude profile', async () => {
+test('should test with Claude-like profile', async () => {
+  // This uses a simulated profile for unit testing
   const host = new MockMCPHost({ hostProfile: 'Claude' });
   
   const profile = host.getHostProfile();
@@ -110,6 +119,8 @@ test('should test with Claude profile', async () => {
 });
 
 test('should test with VS Code profile', async () => {
+  // This uses a simulated VS Code profile for unit testing
+  // For real VS Code testing, use VSCodeHost instead
   const host = new MockMCPHost({ hostProfile: 'VSCode' });
   
   const profile = host.getHostProfile();
@@ -122,13 +133,15 @@ test('should test with VS Code profile', async () => {
 
 ### 5. Testing UI with Themes
 
+Simulated profiles include theme variables you can apply for UI testing:
+
 ```typescript
 import { HostProfiles, applyTheme } from 'mcp-apps-testing';
 
-test('should render with Claude dark theme', async ({ page }) => {
+test('should render with Claude-like dark theme', async ({ page }) => {
   await page.goto('file:///path/to/app.html');
   
-  // Apply Claude dark theme
+  // Apply Claude-like dark theme from simulated profile
   const themeCSS = applyTheme(HostProfiles.Claude, 'dark');
   await page.addStyleTag({ content: `:root { ${themeCSS} }` });
   
