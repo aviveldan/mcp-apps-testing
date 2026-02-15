@@ -218,7 +218,10 @@ export class ReferenceHost {
     const height = this.options.viewport?.height ?? 600;
 
     const themeStyle = this.options.theme
-      ? `:root { ${Object.entries(this.options.theme).map(([k, v]) => `${k}: ${v}`).join('; ')}; }`
+      ? `:root { ${Object.entries(this.options.theme)
+          .filter(([k]) => k.startsWith('--'))
+          .map(([k, v]) => `${this.escapeCssValue(k)}: ${this.escapeCssValue(v)}`)
+          .join('; ')}; }`
       : '';
 
     return `<!DOCTYPE html>
@@ -267,5 +270,23 @@ export class ReferenceHost {
       .replace(/"/g, '&quot;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
+  }
+
+  /**
+   * Sanitize CSS values to prevent CSS injection attacks.
+   * Removes characters that could break out of CSS context.
+   * Preserves characters valid in CSS values like #, -, hex colors, etc.
+   */
+  private escapeCssValue(str: string): string {
+    // Remove characters that could break out of CSS context:
+    // - } closes the CSS rule block
+    // - ; terminates the CSS declaration
+    // - " and ' could close string contexts
+    // - \ starts escape sequences
+    // - < and > for script tag prevention
+    // - { for block injection
+    // - newlines/carriage returns for multi-line injection
+    return str
+      .replace(/[{};"'\\<>\r\n]/g, '');
   }
 }
