@@ -4,6 +4,10 @@
  * This module provides pre-configured profiles for different AI host environments
  * like Claude, VS Code, etc., including their specific capabilities, theme variables,
  * and constraints.
+ * 
+ * IMPORTANT: These profiles are being transitioned to evidence-based, versioned
+ * JSON configurations. For new development, prefer loading profiles from JSON files
+ * using HostProfileLoader.
  */
 
 export interface HostProfile {
@@ -22,10 +26,20 @@ export interface HostProfile {
     maxViewportHeight?: number;
     allowedProtocols?: string[];
   };
+  limitations?: string[];
 }
 
 /**
  * Claude AI host profile
+ * 
+ * NOTE: This is a simplified profile for backward compatibility.
+ * For evidence-based testing, use the versioned JSON profile:
+ * loadHostProfileByName('claude', '1.0.0')
+ * 
+ * Limitations:
+ * - Mock profile based on assumptions, not recorded behavior
+ * - May not reflect all edge cases or error handling
+ * - Theme colors are approximate
  */
 export const ClaudeProfile: HostProfile = {
   name: 'Claude',
@@ -59,10 +73,27 @@ export const ClaudeProfile: HostProfile = {
     maxViewportHeight: 1080,
     allowedProtocols: ['http', 'https', 'data'],
   },
+  limitations: [
+    'Mock profile based on assumptions, not recorded behavior',
+    'May not reflect all edge cases or error handling',
+    'Theme colors are approximate',
+    'For production testing, use versioned JSON profiles',
+  ],
 };
 
 /**
  * VS Code host profile
+ * 
+ * NOTE: This is a simplified profile for backward compatibility.
+ * For evidence-based testing, use the versioned JSON profile:
+ * loadHostProfileByName('vscode', '1.0.0')
+ * 
+ * Limitations:
+ * - Mock profile based on assumptions, not recorded behavior
+ * - VS Code extension behavior may vary by version
+ * - Some capabilities are extension-specific
+ * - Does not support resource subscriptions
+ * - Does not support prompt list changes
  */
 export const VSCodeProfile: HostProfile = {
   name: 'VS Code',
@@ -96,6 +127,14 @@ export const VSCodeProfile: HostProfile = {
     maxViewportHeight: 900,
     allowedProtocols: ['http', 'https', 'vscode', 'data'],
   },
+  limitations: [
+    'Mock profile based on assumptions, not recorded behavior',
+    'VS Code extension behavior may vary by version',
+    'Some capabilities are extension-specific',
+    'Does not support resource subscriptions',
+    'Does not support prompt list changes',
+    'For production testing, use versioned JSON profiles',
+  ],
 };
 
 /**

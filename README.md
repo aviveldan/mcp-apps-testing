@@ -78,6 +78,27 @@ test('MCP app responds to tool calls', async () => {
 
 ## Key Features
 
+### Evidence-Based Testing 🆕
+Test against real host behaviors, not assumptions:
+```typescript
+import { SessionPlayer, loadSession } from 'mcp-apps-testing';
+
+// Load a recorded session from Claude Desktop
+const session = loadSession(fs.readFileSync('./profiles/sessions/claude-basic-flow.json'));
+const player = new SessionPlayer(session);
+
+// Replay it in your tests
+await player.replay(host, { validate: true });
+```
+
+**New Capabilities:**
+- 📹 **Session Recording & Replay**: Capture and replay real protocol flows from Claude and VS Code
+- ✅ **Protocol Validation**: Validate messages against MCP spec with `ProtocolValidator`
+- 📊 **Versioned Host Profiles**: Evidence-based profiles with documented limitations
+- 🔍 **Session Comparison**: Detect behavioral differences between host versions
+
+See the [Evidence-Based Testing Guide](docs/evidence-based-testing.md) for details.
+
 ### Simulate Real IDE Environments
 Test your MCP app against different host profiles with specific capabilities, themes, and constraints:
 ```typescript
@@ -146,9 +167,12 @@ See the [examples/](examples/) directory for complete working examples:
 
 ## Documentation
 
+- [Evidence-Based Testing Guide](docs/evidence-based-testing.md) - **NEW!** Test against real host behaviors
 - [Getting Started Guide](docs/getting-started.md) - Detailed setup and first steps
 - [API Reference](docs/api-reference.md) - Complete API documentation
 - [Example App](examples/hello-world-app.html) - Sample MCP application
+- [Recorded Sessions](profiles/sessions/) - Real protocol flows from Claude and VS Code
+- [Host Profiles](profiles/) - Versioned, evidence-based host configurations
 
 ## Commands
 

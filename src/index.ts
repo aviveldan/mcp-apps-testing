@@ -11,6 +11,16 @@ export { TransportInterceptor } from './core/TransportInterceptor';
 export { HostProfiles, ClaudeProfile, VSCodeProfile, GenericProfile, applyTheme } from './core/HostProfiles';
 export type { HostProfile } from './core/HostProfiles';
 
+// Export host profile management
+export {
+  loadHostProfile,
+  loadHostProfileByName,
+  compareHostProfiles,
+  validateHostProfile,
+  getCapabilityDifferences,
+} from './core/HostProfileLoader';
+export type { VersionedHostProfile } from './core/HostProfileLoader';
+
 // Export protocol validation
 export { 
   ProtocolValidator,
