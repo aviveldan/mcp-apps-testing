@@ -13,7 +13,7 @@ import type { Page, FrameLocator } from '@playwright/test';
 import type { JSONRPCRequest, JSONRPCResponse, JSONRPCNotification } from '../types';
 import * as fs from 'fs';
 import * as path from 'path';
-import { fileURLToPath } from 'url';
+
 
 export interface ReferenceHostOptions {
   /** Sandbox attributes for the app iframe (default: 'allow-scripts allow-same-origin') */
@@ -88,10 +88,14 @@ export class ReferenceHost {
    * Send a JSON-RPC message (response or notification) from the host into the app iframe.
    */
   async sendMessage(message: JSONRPCResponse | JSONRPCNotification): Promise<void> {
-    await this.page.evaluate((msg) => {
-      const iframe = document.getElementById('mcp-app-frame') as HTMLIFrameElement;
-      iframe.contentWindow?.postMessage(msg, '*');
-    }, message);
+    await this.page.evaluate(
+      (msg, targetOrigin) => {
+        const iframe = document.getElementById('mcp-app-frame') as HTMLIFrameElement;
+        iframe.contentWindow?.postMessage(msg, targetOrigin);
+      },
+      message,
+      HOST_ORIGIN
+    );
   }
 
   /**
@@ -189,11 +193,13 @@ export class ReferenceHost {
       const filePath = appUrl.replace(/^file:\/\/\/?/, '');
       const normalizedPath = path.resolve(filePath);
       await page.route(appRoute, async (route) => {
-        const content = fs.readFileSync(normalizedPath, 'utf-8');
+        const content = await fs.promises.readFile(normalizedPath, 'utf-8');
         await route.fulfill({ body: content, contentType: 'text/html' });
       });
     } else if (appUrl.startsWith('data:')) {
-      const content = decodeURIComponent(appUrl.split(',').slice(1).join(','));
+      const commaIndex = appUrl.indexOf(',');
+      const dataPart = commaIndex !== -1 ? appUrl.substring(commaIndex + 1) : '';
+      const content = decodeURIComponent(dataPart);
       await page.route(appRoute, async (route) => {
         await route.fulfill({ body: content, contentType: 'text/html' });
       });
@@ -235,7 +241,7 @@ export class ReferenceHost {
   <iframe
     id="mcp-app-frame"
     src="${this.escapeHtml(appRoute)}"
-    sandbox="${sandbox}"
+    sandbox="${this.escapeHtml(String(sandbox))}"
     width="${width}"
     height="${height}"
   ></iframe>
