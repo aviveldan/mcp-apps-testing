@@ -110,8 +110,20 @@ export class ReferenceHost {
     return await this.page.evaluate(
       ({ method: m, timeout: t }) => {
         return new Promise<JSONRPCRequest>((resolve, reject) => {
+          // Listen for future messages
+          const handler = (event: MessageEvent) => {
+            if (event.data?.method === m) {
+              clearTimeout(deadline);
+              window.removeEventListener('message', handler);
+              resolve(event.data);
+            }
+          };
+
           const deadline = setTimeout(
-            () => reject(new Error(`Timeout waiting for message "${m}"`)),
+            () => {
+              window.removeEventListener('message', handler);
+              reject(new Error(`Timeout waiting for message "${m}"`));
+            },
             t
           );
 
@@ -125,14 +137,6 @@ export class ReferenceHost {
             return;
           }
 
-          // Listen for future messages
-          const handler = (event: MessageEvent) => {
-            if (event.data?.method === m) {
-              clearTimeout(deadline);
-              window.removeEventListener('message', handler);
-              resolve(event.data);
-            }
-          };
           window.addEventListener('message', handler);
         });
       },
