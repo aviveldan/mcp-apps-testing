@@ -3,14 +3,18 @@ import { MockMCPHostConfig, MCPCapabilities, JSONRPCRequest, JSONRPCResponse } f
 import { HostProfiles, HostProfile } from './HostProfiles';
 
 /**
- * MockMCPHost - Simulates an IDE environment hosting an MCP server
+ * MockMCPHost - Simulates an MCP host environment for unit testing
  * 
  * This class provides:
- * - A simulated MCP host environment for testing
+ * - A simulated MCP host environment for unit testing (NOT a real IDE connection)
  * - Automatic handling of common MCP protocol messages
  * - Integration with TransportInterceptor for request/response mocking
  * - Capability simulation (tools, resources, prompts)
- * - Host profile simulation (Claude, VS Code, etc.)
+ * - Host profile simulation with themes and capabilities (VSCode, Claude-like, Generic)
+ * 
+ * For testing in real environments:
+ * - Use VSCodeHost for real VS Code testing
+ * - Use ReferenceHost for spec-compliant browser-based E2E testing
  */
 export class MockMCPHost {
   private interceptor: TransportInterceptor;

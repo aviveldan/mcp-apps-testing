@@ -1,9 +1,14 @@
 /**
- * Host Profiles - Simulates different MCP host environments
+ * Host Profiles - Simulated MCP host environments for unit testing
  * 
- * This module provides pre-configured profiles for different AI host environments
- * like Claude, VS Code, etc., including their specific capabilities, theme variables,
- * and constraints.
+ * This module provides pre-configured profiles for different MCP host environments
+ * that can be used with MockMCPHost for unit testing. These are SIMULATED profiles
+ * with typical capabilities, theme variables, and constraints.
+ * 
+ * Important: These profiles are for UNIT TESTING only. They do not connect to or
+ * simulate actual IDE/host applications. For real environment testing:
+ * - Use VSCodeHost for real VS Code testing
+ * - Use ReferenceHost for spec-compliant browser-based E2E testing
  */
 
 export interface HostProfile {
@@ -25,7 +30,11 @@ export interface HostProfile {
 }
 
 /**
- * Claude AI host profile
+ * Generic simulated host profile
+ * 
+ * This is a simulated profile for unit testing, inspired by Claude-like capabilities
+ * and theming, but NOT a connection to or simulation of actual Claude Desktop.
+ * For testing in real host environments, use VSCodeHost for VS Code.
  */
 export const ClaudeProfile: HostProfile = {
   name: 'Claude',
@@ -62,7 +71,10 @@ export const ClaudeProfile: HostProfile = {
 };
 
 /**
- * VS Code host profile
+ * VS Code simulated host profile
+ * 
+ * This is a simulated profile for unit testing. For testing in a real VS Code
+ * environment, use VSCodeHost instead.
  */
 export const VSCodeProfile: HostProfile = {
   name: 'VS Code',
