@@ -8,6 +8,7 @@
 
 import { JSONRPCRequest, JSONRPCResponse, JSONRPCNotification } from '../types';
 import { ProtocolValidator } from './ProtocolValidator';
+import * as fs from 'fs';
 
 export interface SessionMetadata {
   recordedDate: string;
@@ -143,7 +144,6 @@ export class SessionRecorder {
     constraints?: RecordedSession['constraints'],
     capabilities?: Record<string, unknown>
   ): void {
-    const fs = require('fs');
     const session = this.exportSession(constraints, capabilities);
     fs.writeFileSync(filePath, session, 'utf-8');
   }
@@ -202,7 +202,6 @@ export function loadSession(jsonString: string): RecordedSession {
  * Load a recorded session from file
  */
 export function loadSessionFromFile(filePath: string): RecordedSession {
-  const fs = require('fs');
   const jsonString = fs.readFileSync(filePath, 'utf-8');
   return loadSession(jsonString);
 }
