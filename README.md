@@ -109,7 +109,27 @@ const response = await host.callTool('greet', { name: 'Test' });
 
 ## Architecture
 
-![Architecture Diagram](docs/images/architecture.svg)
+```mermaid
+graph TD
+    App[Your MCP Application<br/>HTML + JavaScript]
+    
+    App -->|JSON-RPC 2.0| TI[TransportInterceptor<br/>Mock & Record Messages<br/>Request/Response Interception]
+    
+    TI -->|Simulated| Host[MockMCPHost<br/>Simulate IDE Environment<br/>Auto-respond to Protocol Messages<br/>Fluent DSL Methods]
+    
+    Host -->|Uses| Profiles[Host Profiles<br/>• Claude<br/>• VS Code<br/>• Generic]
+    
+    PW[Playwright<br/>• Browser Automation<br/>• UI Testing<br/>• Screenshots] -->|Controls| Host
+    
+    Host --> Results[Test Results & Assertions<br/>Message Recording • Protocol Logging • Traces]
+    
+    style App fill:#e0e7ff,stroke:#6366f1,color:#1e293b
+    style TI fill:#6366f1,stroke:#4338ca,color:#fff
+    style Host fill:#6366f1,stroke:#4338ca,color:#fff
+    style Profiles fill:#e0e7ff,stroke:#6366f1,color:#1e293b
+    style PW fill:#e0e7ff,stroke:#6366f1,color:#1e293b
+    style Results fill:#e0e7ff,stroke:#6366f1,color:#1e293b
+```
 
 **Core Components**
 - **MockMCPHost**: Simulates IDE hosting environment with auto-response to common protocol messages
