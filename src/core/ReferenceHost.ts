@@ -220,7 +220,7 @@ export class ReferenceHost {
     const themeStyle = this.options.theme
       ? `:root { ${Object.entries(this.options.theme)
           .filter(([k]) => k.startsWith('--'))
-          .map(([k, v]) => `${this.escapeCssValue(k)}: ${this.escapeCssValue(v)}`)
+          .map(([k, v]) => `${k}: ${this.escapeCssValue(v)}`)
           .join('; ')}; }`
       : '';
 
@@ -274,19 +274,21 @@ export class ReferenceHost {
 
   /**
    * Sanitize CSS values to prevent CSS injection attacks.
-   * Removes characters that could break out of CSS context.
+   * Removes characters that could break out of CSS context or enable attacks.
    * Preserves characters valid in CSS values like #, -, hex colors, etc.
    */
   private escapeCssValue(str: string): string {
-    // Remove characters that could break out of CSS context:
+    // Remove characters that could break out of CSS context or enable injection:
     // - } closes the CSS rule block
     // - ; terminates the CSS declaration
     // - " and ' could close string contexts
     // - \ starts escape sequences
     // - < and > for script tag prevention
     // - { for block injection
+    // - ( and ) for url() and calc() injection
+    // - / for comment /* */ injection
     // - newlines/carriage returns for multi-line injection
     return str
-      .replace(/[{};"'\\<>\r\n]/g, '');
+      .replace(/[{};"'\\<>()/\r\n]/g, '');
   }
 }
