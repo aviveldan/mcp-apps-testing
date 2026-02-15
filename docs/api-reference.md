@@ -224,6 +224,120 @@ interface MockMCPHostConfig {
 
 ---
 
+## VSCodeHost
+
+Real VS Code E2E testing via Playwright's Electron support.
+
+### Static Methods
+
+#### `VSCodeHost.launch(options?: VSCodeHostOptions): Promise<VSCodeHost>`
+
+Launches VS Code and returns a handle for interacting with it.
+
+**Parameters:**
+- `options.vscodeExecutablePath` (string): Path to VS Code binary. Auto-detected if omitted.
+- `options.vscodeVersion` (string): Version for auto-download. Default: `'stable'`
+- `options.extensionDevelopmentPath` (string): Extension source directory to load
+- `options.extensionPaths` (string[]): VSIX files to install before launch
+- `options.userDataDir` (string): Isolated user data directory. Temp dir if omitted.
+- `options.extensionsDir` (string): Isolated extensions directory. Temp dir if omitted.
+- `options.workspacePath` (string): Workspace folder or file to open
+- `options.debug` (boolean): Log VS Code console output. Default: `false`
+- `options.launchTimeout` (number): Launch timeout in ms. Default: `30000`
+- `options.extraArgs` (string[]): Additional VS Code CLI arguments
+
+**Example:**
+```typescript
+const host = await VSCodeHost.launch({
+  extensionDevelopmentPath: path.resolve(__dirname, '../my-extension'),
+  workspacePath: path.resolve(__dirname, '../test-workspace'),
+});
+```
+
+#### `VSCodeHost.resolveVSCodePath(version?: string): Promise<string>`
+
+Resolves the VS Code executable path. Checks `VSCODE_PATH` env var, well-known paths, PATH lookup, and `@vscode/test-electron` download.
+
+### Instance Methods
+
+#### `getWindow(): Page`
+
+Returns the Playwright Page for the VS Code window.
+
+#### `getElectronApp(): ElectronApplication`
+
+Returns the underlying Playwright ElectronApplication.
+
+#### `runCommand(command: string): Promise<void>`
+
+Opens the command palette and executes a command by ID or label.
+
+**Example:**
+```typescript
+await host.runCommand('View: Toggle Terminal');
+await host.runCommand('myExtension.openMCPApp');
+```
+
+#### `getWebviewFrame(options?: WebviewLocatorOptions): Promise<FrameLocator>`
+
+Returns the content FrameLocator for a webview. Navigates VS Code's nested iframe structure automatically.
+
+**Parameters:**
+- `options.tabTitle` (string): Editor tab title to activate first
+- `options.timeout` (number): Timeout in ms. Default: `10000`
+
+**Example:**
+```typescript
+const frame = await host.getWebviewFrame({ tabTitle: 'My MCP App' });
+await expect(frame.locator('h1')).toContainText('Hello');
+```
+
+#### `waitForWebview(options?: WebviewLocatorOptions): Promise<FrameLocator>`
+
+Waits for a webview to appear, then returns its content FrameLocator.
+
+**Parameters:**
+- `options.tabTitle` (string): Editor tab title to activate
+- `options.timeout` (number): Timeout in ms. Default: `15000`
+
+#### `screenshot(filePath?: string): Promise<Buffer>`
+
+Captures a screenshot of the VS Code window.
+
+#### `cleanup(): Promise<void>`
+
+Closes VS Code and deletes temporary directories.
+
+### Types
+
+#### VSCodeHostOptions
+
+```typescript
+interface VSCodeHostOptions {
+  vscodeExecutablePath?: string;
+  vscodeVersion?: string;
+  extensionDevelopmentPath?: string;
+  extensionPaths?: string[];
+  userDataDir?: string;
+  extensionsDir?: string;
+  workspacePath?: string;
+  debug?: boolean;
+  launchTimeout?: number;
+  extraArgs?: string[];
+}
+```
+
+#### WebviewLocatorOptions
+
+```typescript
+interface WebviewLocatorOptions {
+  tabTitle?: string;
+  timeout?: number;
+}
+```
+
+---
+
 ## Utility Functions
 
 ### `createMCPTestContext(config?: MockMCPHostConfig): Promise<MCPTestContext>`

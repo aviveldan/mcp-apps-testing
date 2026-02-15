@@ -38,6 +38,7 @@ await host.callTool('greet', { name: 'World' });
 - **Host Simulation**: Test against Claude, VS Code, or custom IDE profiles with different capabilities and themes
 - **Full Control**: Mock, intercept, and assert on every JSON-RPC message
 - **UI + Protocol**: Tests both UI rendering AND protocol interactions in a single framework
+- **Real VS Code E2E**: Test ext-apps inside a real VS Code instance with Playwright Electron
 - **Fluent API**: Human-readable test code with auto-retry and intelligent defaults
 
 ## Quick Start
@@ -135,12 +136,15 @@ graph TD
 - **MockMCPHost**: Simulates IDE hosting environment with auto-response to common protocol messages
 - **TransportInterceptor**: Mocks and records JSON-RPC messages for testing and assertions
 - **Host Profiles**: Pre-configured environments (Claude, VS Code, Generic) with capabilities and themes
+- **ReferenceHost**: Browser sandbox for automated E2E testing (~90% real behavior)
+- **VSCodeHost**: Real VS Code E2E testing via Playwright Electron (100% real behavior)
 
 ## Examples
 
 See the [examples/](examples/) directory for complete working examples:
 - **hello-world.spec.ts**: Full UI testing with theme switching and tool calls
 - **basic-test.spec.ts**: Protocol-focused testing with message mocking
+- **vscode-e2e.spec.ts**: VS Code container E2E testing with real IDE
 
 ![Test Results](docs/images/test-results.svg)
 
@@ -148,6 +152,7 @@ See the [examples/](examples/) directory for complete working examples:
 
 - [Getting Started Guide](docs/getting-started.md) - Detailed setup and first steps
 - [API Reference](docs/api-reference.md) - Complete API documentation
+- [VS Code E2E Testing](docs/vscode-e2e-testing.md) - Test MCP ext-apps in real VS Code
 - [Example App](examples/hello-world-app.html) - Sample MCP application
 
 ## Commands
