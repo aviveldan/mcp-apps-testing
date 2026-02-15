@@ -20,8 +20,8 @@ export {
 } from './core/AssertionHelpers';
 export { ReferenceHost } from './core/ReferenceHost';
 export type { ReferenceHostOptions } from './core/ReferenceHost';
-export { VSCodeHost } from './core/VSCodeHost';
-export type { VSCodeHostOptions, WebviewLocatorOptions } from './core/VSCodeHost';
+export { VSCodeHost, ChatHandle } from './core/VSCodeHost';
+export type { VSCodeHostOptions, MCPServerConfig, WebviewLocatorOptions } from './core/VSCodeHost';
 
 export type {
   JSONRPCRequest,

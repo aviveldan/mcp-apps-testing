@@ -38,7 +38,7 @@ await host.callTool('greet', { name: 'World' });
 - **Host Simulation**: Test against Claude, VS Code, or custom IDE profiles with different capabilities and themes
 - **Full Control**: Mock, intercept, and assert on every JSON-RPC message
 - **UI + Protocol**: Tests both UI rendering AND protocol interactions in a single framework
-- **Real VS Code E2E**: Test ext-apps inside a real VS Code instance with Playwright Electron
+- **Real VS Code E2E**: Test MCP tools through Copilot Chat in a real VS Code instance with Playwright Electron
 - **Fluent API**: Human-readable test code with auto-retry and intelligent defaults
 
 ## Quick Start
@@ -144,7 +144,7 @@ graph TD
 See the [examples/](examples/) directory for complete working examples:
 - **hello-world.spec.ts**: Full UI testing with theme switching and tool calls
 - **basic-test.spec.ts**: Protocol-focused testing with message mocking
-- **vscode-e2e.spec.ts**: VS Code container E2E testing with real IDE
+- **vscode-e2e.spec.ts**: VS Code E2E testing — full MCP tool call through Copilot Chat
 
 ![Test Results](docs/images/test-results.svg)
 

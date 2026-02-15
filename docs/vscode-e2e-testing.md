@@ -1,6 +1,10 @@
-# VS Code Container E2E Testing
+# VS Code E2E Testing with Copilot Chat + MCP
 
-Test your MCP ext-apps inside a **real VS Code instance** using Playwright's Electron support. This catches host-specific rendering and communication bugs that the ReferenceHost sandbox cannot reproduce.
+Test your MCP ext-apps through the **real Copilot Chat flow** in VS Code:
+configure MCP server → open chat → send prompt → tool gets called → assert on response/UI.
+
+Uses Playwright's Electron support to drive a real VS Code instance, catching
+host-specific bugs that sandbox tests can't find.
 
 ## When to Use This
 
@@ -11,11 +15,23 @@ Test your MCP ext-apps inside a **real VS Code instance** using Playwright's Ele
 | **3** | **`VSCodeHost`** | Slow (~30s) | **100% real VS Code** | **Nightly / release gate** |
 
 Use `VSCodeHost` when you need to verify:
+- MCP tool calls work end-to-end through Copilot Chat
 - Webview rendering inside VS Code's iframe sandbox
 - VS Code theme integration (light/dark, high contrast)
 - Extension activation and lifecycle
-- Command palette interactions
-- Side-by-side behavior with other extensions
+- Tool confirmation dialogs (Allow/Skip)
+
+## Clean-Room Isolation
+
+Every test runs in an isolated environment — no leftover MCP servers, no chat history, no agent memory:
+
+| Concern | How it's handled |
+|---------|-----------------|
+| **Other MCP servers** | Fresh workspace with only your server in `.vscode/mcp.json` |
+| **Other extensions** | Fresh extensions dir with only Copilot Chat (copied from your install) |
+| **Chat history / sessions** | Fresh workspace means no prior sessions |
+| **Copilot auth** | Uses your real VS Code `user-data-dir` (read-only for credentials) |
+| **Cleanup** | Temp dirs deleted automatically on `cleanup()` |
 
 ## Quick Start
 
@@ -33,29 +49,31 @@ npm install @vscode/test-electron --save-dev
 ```typescript
 import { test, expect } from '@playwright/test';
 import { VSCodeHost } from 'mcp-apps-testing';
-import * as path from 'path';
 
-test('MCP ext-app renders in VS Code', async () => {
+test('MCP tool call through Copilot Chat', async () => {
+  // Launch VS Code in a clean room
   const host = await VSCodeHost.launch({
-    extensionDevelopmentPath: path.resolve(__dirname, '../my-extension'),
-    workspacePath: path.resolve(__dirname, '../test-workspace'),
+    mcpServers: {
+      'my-server': {
+        type: 'stdio',
+        command: 'node',
+        args: ['./my-mcp-server.js'],
+      },
+    },
   });
 
-  const window = host.getWindow();
-  await expect(window.locator('.monaco-workbench')).toBeVisible({ timeout: 30000 });
+  // Open Agent chat (required for MCP tools)
+  const chat = await host.openChat('agent');
 
-  // Trigger your MCP tool
-  await host.runCommand('myExtension.openMCPApp');
+  // Send a prompt that triggers your tool
+  await chat.send('Use the greet tool with name "Test"');
 
-  // Find the ext-app webview
-  const webview = await host.waitForWebview({ tabTitle: 'My MCP App' });
+  // Allow the MCP tool call when VS Code asks for confirmation
+  await chat.allowTool();
 
-  // Assert on the rendered UI
-  await expect(webview.locator('h1')).toContainText('Hello');
-  await expect(webview.locator('.status')).toHaveText('Connected');
-
-  // Screenshot for visual regression
-  await host.screenshot('screenshots/mcp-app-vscode.png');
+  // Wait for the response and assert
+  const response = await chat.waitForResponse();
+  await expect(response).toContainText('Hello, Test');
 
   await host.cleanup();
 });
@@ -64,34 +82,59 @@ test('MCP ext-app renders in VS Code', async () => {
 ### 3. Run the Test
 
 ```bash
-# Local (VS Code must be installed)
-npx playwright test my-vscode-test.spec.ts
+# Local (VS Code + Copilot must be installed and authenticated)
+VSCODE_E2E=1 npx playwright test my-vscode-test.spec.ts --workers=1
 
 # Explicit VS Code path
-VSCODE_PATH=/path/to/code npx playwright test my-vscode-test.spec.ts
+VSCODE_PATH=/path/to/code VSCODE_E2E=1 npx playwright test my-vscode-test.spec.ts
 
 # Linux CI with xvfb
-xvfb-run npx playwright test my-vscode-test.spec.ts
+xvfb-run --auto-servernum npx playwright test my-vscode-test.spec.ts
 ```
+
+> **Important:** Run VS Code E2E tests with `--workers=1` (serial) since they share
+> the real user-data-dir for Copilot authentication.
 
 ## API
 
 ### `VSCodeHost.launch(options?)`
 
-Launches VS Code and returns a `VSCodeHost` handle.
+Launches VS Code in a clean-room environment and returns a `VSCodeHost` handle.
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `vscodeExecutablePath` | `string` | auto-detect | Path to VS Code binary |
 | `vscodeVersion` | `string` | `'stable'` | Version for auto-download |
+| `mcpServers` | `Record<string, MCPServerConfig>` | `{}` | MCP servers to configure |
 | `extensionDevelopmentPath` | `string` | — | Extension source to load |
 | `extensionPaths` | `string[]` | — | VSIX files to install |
-| `userDataDir` | `string` | temp dir | Isolated user data |
-| `extensionsDir` | `string` | temp dir | Isolated extensions |
-| `workspacePath` | `string` | — | Workspace to open |
+| `userDataDir` | `string` | real VS Code dir | User data for Copilot auth |
+| `extensionsDir` | `string` | temp (Copilot only) | Isolated extensions dir |
+| `workspacePath` | `string` | temp dir | Workspace folder to open |
 | `debug` | `boolean` | `false` | Log console output |
 | `launchTimeout` | `number` | `30000` | Launch timeout (ms) |
 | `extraArgs` | `string[]` | — | Extra VS Code CLI args |
+
+### `MCPServerConfig`
+
+```typescript
+interface MCPServerConfig {
+  type: 'stdio' | 'http' | 'sse';
+  command?: string;     // for stdio
+  args?: string[];      // for stdio
+  url?: string;         // for http/sse
+  env?: Record<string, string>;
+  headers?: Record<string, string>;
+}
+```
+
+### `host.openChat(mode?): Promise<ChatHandle>`
+
+Opens Copilot Chat and returns a `ChatHandle`. Use `'agent'` mode (default) for MCP tool calls.
+
+### `host.configureMCPServer(name, config)`
+
+Add or update an MCP server in the workspace's `.vscode/mcp.json` at runtime.
 
 ### `host.getWindow(): Page`
 
@@ -99,7 +142,11 @@ Returns the Playwright `Page` for the VS Code window.
 
 ### `host.runCommand(command: string)`
 
-Opens the command palette and executes a command by ID or label.
+Opens the command palette and executes a command by label.
+
+### `host.getWorkspaceDir(): string`
+
+Returns the workspace directory path.
 
 ### `host.waitForWebview(options?)`
 
@@ -115,7 +162,7 @@ Captures a screenshot of the VS Code window.
 
 ### `host.cleanup()`
 
-Closes VS Code and deletes temporary directories.
+Closes VS Code (handling exit dialogs) and deletes temporary directories.
 
 ### `VSCodeHost.resolveVSCodePath(version?)`
 
@@ -124,6 +171,39 @@ Static utility to find the VS Code executable. Resolution order:
 2. Well-known installation paths per platform
 3. `which`/`where` lookup on PATH
 4. Download via `@vscode/test-electron` (if installed)
+
+## ChatHandle API
+
+Returned by `host.openChat()`. Drives the Copilot Chat conversation.
+
+### `chat.send(message: string)`
+
+Type and send a chat message.
+
+### `chat.allowTool(timeout?)`
+
+Click "Allow" on the MCP tool confirmation dialog. VS Code shows this when
+Copilot wants to call an MCP tool.
+
+### `chat.skipTool(timeout?)`
+
+Click "Skip" to decline a tool invocation.
+
+### `chat.waitForResponse(timeout?): Promise<Locator>`
+
+Wait for the assistant to finish responding. Returns a Locator for the last response row.
+
+### `chat.waitForToolCall(timeout?): Promise<Locator>`
+
+Wait for a tool invocation element to appear in the chat.
+
+### `chat.getMessages(): Promise<Array<{ role, text }>>`
+
+Get all visible chat messages as `{ role: 'user' | 'assistant', text: string }` objects.
+
+### `chat.waitForExtApp(timeout?): Promise<FrameLocator>`
+
+Wait for an ext-app iframe rendered inside a chat response and return its FrameLocator.
 
 ## VS Code Webview Structure
 

@@ -226,22 +226,23 @@ interface MockMCPHostConfig {
 
 ## VSCodeHost
 
-Real VS Code E2E testing via Playwright's Electron support.
+Real VS Code E2E testing via Playwright's Electron support. Provides a **clean-room** environment for MCP ext-app testing with Copilot Chat integration.
 
 ### Static Methods
 
 #### `VSCodeHost.launch(options?: VSCodeHostOptions): Promise<VSCodeHost>`
 
-Launches VS Code and returns a handle for interacting with it.
+Launches VS Code in a clean-room environment and returns a handle for interacting with it.
 
 **Parameters:**
 - `options.vscodeExecutablePath` (string): Path to VS Code binary. Auto-detected if omitted.
 - `options.vscodeVersion` (string): Version for auto-download. Default: `'stable'`
+- `options.mcpServers` (Record<string, MCPServerConfig>): MCP servers to configure in `.vscode/mcp.json`
 - `options.extensionDevelopmentPath` (string): Extension source directory to load
 - `options.extensionPaths` (string[]): VSIX files to install before launch
-- `options.userDataDir` (string): Isolated user data directory. Temp dir if omitted.
-- `options.extensionsDir` (string): Isolated extensions directory. Temp dir if omitted.
-- `options.workspacePath` (string): Workspace folder or file to open
+- `options.userDataDir` (string): User data directory. Uses real VS Code dir by default (for Copilot auth).
+- `options.extensionsDir` (string): Extensions directory. Fresh temp dir with only Copilot if omitted.
+- `options.workspacePath` (string): Workspace folder to open. Fresh temp dir if omitted.
 - `options.debug` (boolean): Log VS Code console output. Default: `false`
 - `options.launchTimeout` (number): Launch timeout in ms. Default: `30000`
 - `options.extraArgs` (string[]): Additional VS Code CLI arguments
@@ -249,8 +250,9 @@ Launches VS Code and returns a handle for interacting with it.
 **Example:**
 ```typescript
 const host = await VSCodeHost.launch({
-  extensionDevelopmentPath: path.resolve(__dirname, '../my-extension'),
-  workspacePath: path.resolve(__dirname, '../test-workspace'),
+  mcpServers: {
+    'my-server': { type: 'stdio', command: 'node', args: ['./server.js'] },
+  },
 });
 ```
 
@@ -260,6 +262,14 @@ Resolves the VS Code executable path. Checks `VSCODE_PATH` env var, well-known p
 
 ### Instance Methods
 
+#### `openChat(mode?: 'agent' | 'ask'): Promise<ChatHandle>`
+
+Opens Copilot Chat and returns a `ChatHandle` for conversation control. Use `'agent'` mode (default) for MCP tool calls.
+
+#### `configureMCPServer(name: string, config: MCPServerConfig): Promise<void>`
+
+Add or update an MCP server in the workspace's `.vscode/mcp.json`.
+
 #### `getWindow(): Page`
 
 Returns the Playwright Page for the VS Code window.
@@ -268,9 +278,13 @@ Returns the Playwright Page for the VS Code window.
 
 Returns the underlying Playwright ElectronApplication.
 
+#### `getWorkspaceDir(): string`
+
+Returns the workspace directory path.
+
 #### `runCommand(command: string): Promise<void>`
 
-Opens the command palette and executes a command by ID or label.
+Opens the command palette and executes a command by label.
 
 **Example:**
 ```typescript
@@ -286,19 +300,9 @@ Returns the content FrameLocator for a webview. Navigates VS Code's nested ifram
 - `options.tabTitle` (string): Editor tab title to activate first
 - `options.timeout` (number): Timeout in ms. Default: `10000`
 
-**Example:**
-```typescript
-const frame = await host.getWebviewFrame({ tabTitle: 'My MCP App' });
-await expect(frame.locator('h1')).toContainText('Hello');
-```
-
 #### `waitForWebview(options?: WebviewLocatorOptions): Promise<FrameLocator>`
 
 Waits for a webview to appear, then returns its content FrameLocator.
-
-**Parameters:**
-- `options.tabTitle` (string): Editor tab title to activate
-- `options.timeout` (number): Timeout in ms. Default: `15000`
 
 #### `screenshot(filePath?: string): Promise<Buffer>`
 
@@ -306,9 +310,58 @@ Captures a screenshot of the VS Code window.
 
 #### `cleanup(): Promise<void>`
 
-Closes VS Code and deletes temporary directories.
+Closes VS Code (handling exit dialogs) and deletes temporary directories.
+
+---
+
+## ChatHandle
+
+Drives a Copilot Chat conversation. Returned by `host.openChat()`.
+
+### Methods
+
+#### `send(message: string): Promise<void>`
+
+Type and send a chat message.
+
+#### `allowTool(timeout?: number): Promise<void>`
+
+Click "Allow" on the MCP tool confirmation dialog. Timeout defaults to 30000ms.
+
+#### `skipTool(timeout?: number): Promise<void>`
+
+Click "Skip" to decline a tool invocation. Timeout defaults to 15000ms.
+
+#### `waitForResponse(timeout?: number): Promise<Locator>`
+
+Wait for the assistant to finish responding. Returns a Locator for the last response row. Timeout defaults to 60000ms.
+
+#### `waitForToolCall(timeout?: number): Promise<Locator>`
+
+Wait for a tool invocation element to appear. Timeout defaults to 30000ms.
+
+#### `getMessages(): Promise<Array<{ role: 'user' | 'assistant'; text: string }>>`
+
+Get all visible chat messages.
+
+#### `waitForExtApp(timeout?: number): Promise<FrameLocator>`
+
+Wait for an ext-app iframe in a chat response and return its FrameLocator. Timeout defaults to 15000ms.
 
 ### Types
+
+#### MCPServerConfig
+
+```typescript
+interface MCPServerConfig {
+  type: 'stdio' | 'http' | 'sse';
+  command?: string;
+  args?: string[];
+  url?: string;
+  env?: Record<string, string>;
+  headers?: Record<string, string>;
+}
+```
 
 #### VSCodeHostOptions
 
@@ -321,6 +374,7 @@ interface VSCodeHostOptions {
   userDataDir?: string;
   extensionsDir?: string;
   workspacePath?: string;
+  mcpServers?: Record<string, MCPServerConfig>;
   debug?: boolean;
   launchTimeout?: number;
   extraArgs?: string[];
