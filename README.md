@@ -112,14 +112,14 @@ const response = await host.callTool('greet', { name: 'Test' });
 ```mermaid
 graph TD
     App[Your MCP Application<br/>HTML + JavaScript]
+    PW[Playwright<br/>• Browser Automation<br/>• UI Testing<br/>• Screenshots]
     
     App -->|JSON-RPC 2.0| TI[TransportInterceptor<br/>Mock & Record Messages<br/>Request/Response Interception]
     
     TI -->|Simulated| Host[MockMCPHost<br/>Simulate IDE Environment<br/>Auto-respond to Protocol Messages<br/>Fluent DSL Methods]
     
+    PW -->|Controls| Host
     Host -->|Uses| Profiles[Host Profiles<br/>• Claude<br/>• VS Code<br/>• Generic]
-    
-    PW[Playwright<br/>• Browser Automation<br/>• UI Testing<br/>• Screenshots] -->|Controls| Host
     
     Host --> Results[Test Results & Assertions<br/>Message Recording • Protocol Logging • Traces]
     
