@@ -9,6 +9,17 @@ export { MockMCPHost } from './core/MockMCPHost';
 export { TransportInterceptor } from './core/TransportInterceptor';
 export { HostProfiles, ClaudeProfile, VSCodeProfile, GenericProfile, applyTheme } from './core/HostProfiles';
 export type { HostProfile } from './core/HostProfiles';
+export {
+  expectRequest,
+  expectNoRequest,
+  expectToolCall,
+  expectNoErrors,
+  expectMessageSequence,
+  expectCapability,
+  expectNoCapability,
+} from './core/AssertionHelpers';
+export { ReferenceHost } from './core/ReferenceHost';
+export type { ReferenceHostOptions } from './core/ReferenceHost';
 
 export type {
   JSONRPCRequest,
