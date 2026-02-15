@@ -193,7 +193,7 @@ export class ReferenceHost {
    */
   private async routeApp(page: Page, appUrl: string, appRoute: string): Promise<void> {
     if (appUrl.startsWith('file://')) {
-      const filePath = appUrl.replace(/^file:\/\/\/?/, '');
+      const filePath = appUrl.replace(/^file:\/\//, '');
       const normalizedPath = path.resolve(filePath);
       await page.route(appRoute, async (route) => {
         const content = await fs.promises.readFile(normalizedPath, 'utf-8');
