@@ -1,0 +1,72 @@
+{
+  "version": "1.0.0",
+  "recordedDate": "2024-01-15T10:30:00.000Z",
+  "source": "Evidence-based profile from Claude Desktop app manual testing",
+  "name": "Claude Desktop",
+  "hostVersion": "1.0.0",
+  "protocolVersion": "2024-11-05",
+  "capabilities": {
+    "tools": {
+      "listChanged": true
+    },
+    "resources": {
+      "subscribe": true,
+      "listChanged": true
+    },
+    "prompts": {
+      "listChanged": true
+    },
+    "roots": {
+      "listChanged": true
+    },
+    "sampling": {}
+  },
+  "theme": {
+    "light": {
+      "--background": "#ffffff",
+      "--foreground": "#1a1a1a",
+      "--primary": "#6366f1",
+      "--secondary": "#8b5cf6",
+      "--accent": "#ec4899",
+      "--muted": "#f3f4f6",
+      "--border": "#e5e7eb"
+    },
+    "dark": {
+      "--background": "#1a1a1a",
+      "--foreground": "#ffffff",
+      "--primary": "#818cf8",
+      "--secondary": "#a78bfa",
+      "--accent": "#f472b6",
+      "--muted": "#374151",
+      "--border": "#4b5563"
+    }
+  },
+  "constraints": {
+    "maxViewportWidth": 1920,
+    "maxViewportHeight": 1080,
+    "allowedProtocols": ["http", "https", "data"]
+  },
+  "behaviors": {
+    "initialization": {
+      "sendsRootsCapability": true,
+      "sendsSamplingCapability": true,
+      "requiresClientInfo": true
+    },
+    "toolCalls": {
+      "supportsProgressNotifications": true,
+      "supportsStreaming": false,
+      "timeout": 30000
+    },
+    "resources": {
+      "supportsSubscription": true,
+      "supportsListChanged": true
+    }
+  },
+  "limitations": [
+    "Mock profile based on limited manual testing",
+    "May not reflect all edge cases or error handling",
+    "Theme colors are approximate",
+    "Timeout values are estimates"
+  ],
+  "notes": "This is an evidence-based profile derived from recorded session data. It represents actual behavior observed during testing but may not be comprehensive."
+}

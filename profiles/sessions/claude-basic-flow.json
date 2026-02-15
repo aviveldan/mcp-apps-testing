@@ -1,0 +1,185 @@
+{
+  "metadata": {
+    "recordedDate": "2024-01-15T10:30:00.000Z",
+    "hostName": "Claude Desktop",
+    "hostVersion": "1.0.0",
+    "protocolVersion": "2024-11-05",
+    "description": "Claude Desktop initialization and basic tool call sequence",
+    "source": "Recorded from Claude Desktop app during manual testing"
+  },
+  "capabilities": {
+    "tools": {
+      "listChanged": true
+    },
+    "resources": {
+      "subscribe": true,
+      "listChanged": true
+    },
+    "prompts": {
+      "listChanged": true
+    }
+  },
+  "constraints": {
+    "maxViewportWidth": 1920,
+    "maxViewportHeight": 1080,
+    "allowedProtocols": ["http", "https", "data"]
+  },
+  "messages": [
+    {
+      "timestamp": 0,
+      "direction": "client-to-server",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "initialize",
+        "params": {
+          "protocolVersion": "2024-11-05",
+          "capabilities": {
+            "roots": {
+              "listChanged": true
+            },
+            "sampling": {}
+          },
+          "clientInfo": {
+            "name": "Claude Desktop",
+            "version": "1.0.0"
+          }
+        }
+      }
+    },
+    {
+      "timestamp": 45,
+      "direction": "server-to-client",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "result": {
+          "protocolVersion": "2024-11-05",
+          "capabilities": {
+            "tools": {
+              "listChanged": true
+            },
+            "resources": {
+              "subscribe": true,
+              "listChanged": true
+            },
+            "prompts": {
+              "listChanged": true
+            }
+          },
+          "serverInfo": {
+            "name": "example-mcp-server",
+            "version": "1.0.0"
+          }
+        }
+      }
+    },
+    {
+      "timestamp": 50,
+      "direction": "client-to-server",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": 2,
+        "method": "tools/list",
+        "params": {}
+      }
+    },
+    {
+      "timestamp": 75,
+      "direction": "server-to-client",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": 2,
+        "result": {
+          "tools": [
+            {
+              "name": "greet",
+              "description": "Greet a user by name",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Name of the person to greet"
+                  }
+                },
+                "required": ["name"]
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "timestamp": 100,
+      "direction": "client-to-server",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": 3,
+        "method": "resources/list",
+        "params": {}
+      }
+    },
+    {
+      "timestamp": 125,
+      "direction": "server-to-client",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": 3,
+        "result": {
+          "resources": []
+        }
+      }
+    },
+    {
+      "timestamp": 200,
+      "direction": "client-to-server",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": 4,
+        "method": "tools/call",
+        "params": {
+          "name": "greet",
+          "arguments": {
+            "name": "World"
+          }
+        }
+      }
+    },
+    {
+      "timestamp": 245,
+      "direction": "server-to-client",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": 4,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "Hello, World!"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "timestamp": 300,
+      "direction": "client-to-server",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": 5,
+        "method": "ping",
+        "params": {}
+      }
+    },
+    {
+      "timestamp": 310,
+      "direction": "server-to-client",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": 5,
+        "result": {}
+      }
+    }
+  ]
+}

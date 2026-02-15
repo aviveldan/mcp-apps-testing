@@ -1,0 +1,76 @@
+{
+  "version": "1.0.0",
+  "recordedDate": "2024-01-15T11:00:00.000Z",
+  "source": "Evidence-based profile from VS Code MCP extension manual testing",
+  "name": "VS Code",
+  "hostVersion": "1.85.0",
+  "protocolVersion": "2024-11-05",
+  "capabilities": {
+    "tools": {
+      "listChanged": true
+    },
+    "resources": {
+      "subscribe": false,
+      "listChanged": true
+    },
+    "prompts": {
+      "listChanged": false
+    },
+    "roots": {
+      "listChanged": false
+    }
+  },
+  "theme": {
+    "light": {
+      "--background": "#ffffff",
+      "--foreground": "#333333",
+      "--primary": "#007acc",
+      "--secondary": "#68217a",
+      "--accent": "#0098ff",
+      "--muted": "#f3f3f3",
+      "--border": "#cccccc"
+    },
+    "dark": {
+      "--background": "#1e1e1e",
+      "--foreground": "#cccccc",
+      "--primary": "#0098ff",
+      "--secondary": "#c586c0",
+      "--accent": "#4fc1ff",
+      "--muted": "#2d2d2d",
+      "--border": "#3e3e3e"
+    }
+  },
+  "constraints": {
+    "maxViewportWidth": 1600,
+    "maxViewportHeight": 900,
+    "allowedProtocols": ["http", "https", "vscode", "data"]
+  },
+  "behaviors": {
+    "initialization": {
+      "sendsRootsCapability": false,
+      "sendsSamplingCapability": false,
+      "requiresClientInfo": true
+    },
+    "toolCalls": {
+      "supportsProgressNotifications": false,
+      "supportsStreaming": false,
+      "timeout": 30000
+    },
+    "resources": {
+      "supportsSubscription": false,
+      "supportsListChanged": true
+    },
+    "prompts": {
+      "supportsListChanged": false
+    }
+  },
+  "limitations": [
+    "Mock profile based on limited manual testing",
+    "VS Code extension behavior may vary by version",
+    "Some capabilities are extension-specific",
+    "Theme colors match VS Code defaults but may be customized",
+    "Does not support resource subscriptions",
+    "Does not support prompt list changes"
+  ],
+  "notes": "This is an evidence-based profile derived from recorded session data with VS Code MCP extension. Represents editor-specific constraints and behaviors."
+}

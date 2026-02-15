@@ -1,0 +1,311 @@
+/**
+ * SessionPlayer - Replays recorded MCP protocol sessions
+ * 
+ * This module replays previously recorded protocol sessions to validate
+ * that MCP apps behave correctly against real host interaction patterns.
+ */
+
+import { JSONRPCRequest, JSONRPCResponse, JSONRPCNotification } from '../types';
+import { RecordedSession, SessionMessage } from './SessionRecorder';
+import { ProtocolValidator } from './ProtocolValidator';
+import { MockMCPHost } from './MockMCPHost';
+
+export interface PlaybackOptions {
+  /**
+   * Speed multiplier for playback (1.0 = real-time, 2.0 = 2x speed, 0 = instant)
+   */
+  speed?: number;
+
+  /**
+   * Whether to validate messages during playback
+   */
+  validate?: boolean;
+
+  /**
+   * Whether to stop on validation errors
+   */
+  stopOnError?: boolean;
+
+  /**
+   * Callback for each message played
+   */
+  onMessage?: (message: SessionMessage) => void | Promise<void>;
+}
+
+export interface PlaybackResult {
+  success: boolean;
+  messagesPlayed: number;
+  errors: string[];
+  warnings: string[];
+  duration: number;
+}
+
+/**
+ * Plays back recorded MCP sessions for testing
+ */
+export class SessionPlayer {
+  private session: RecordedSession;
+  private validator: ProtocolValidator;
+  private host: MockMCPHost | null = null;
+
+  constructor(session: RecordedSession) {
+    this.session = session;
+    this.validator = new ProtocolValidator(false);
+  }
+
+  /**
+   * Get the recorded session
+   */
+  getSession(): RecordedSession {
+    return this.session;
+  }
+
+  /**
+   * Get session metadata
+   */
+  getMetadata() {
+    return this.session.metadata;
+  }
+
+  /**
+   * Get messages in the session
+   */
+  getMessages(): SessionMessage[] {
+    return this.session.messages;
+  }
+
+  /**
+   * Filter messages by direction
+   */
+  getMessagesByDirection(direction: 'client-to-server' | 'server-to-client'): SessionMessage[] {
+    return this.session.messages.filter(msg => msg.direction === direction);
+  }
+
+  /**
+   * Get messages of a specific method
+   */
+  getMessagesByMethod(method: string): SessionMessage[] {
+    return this.session.messages.filter(msg => {
+      const message = msg.message;
+      return 'method' in message && message.method === method;
+    });
+  }
+
+  /**
+   * Replay the session with a MockMCPHost
+   */
+  async replay(host: MockMCPHost, options: PlaybackOptions = {}): Promise<PlaybackResult> {
+    const {
+      speed = 1.0,
+      validate = true,
+      stopOnError = false,
+      onMessage,
+    } = options;
+
+    this.host = host;
+    this.validator.reset();
+
+    const errors: string[] = [];
+    const warnings: string[] = [];
+    const startTime = Date.now();
+    let messagesPlayed = 0;
+
+    try {
+      for (const sessionMessage of this.session.messages) {
+        // Validate message if requested
+        if (validate) {
+          const validation = this.validator.validateMessage(sessionMessage.message);
+          if (!validation.valid) {
+            errors.push(...validation.errors);
+            if (stopOnError) {
+              break;
+            }
+          }
+          warnings.push(...validation.warnings);
+        }
+
+        // Apply timing if speed > 0
+        if (speed > 0 && messagesPlayed > 0) {
+          const previousMessage = this.session.messages[messagesPlayed - 1];
+          const delay = (sessionMessage.timestamp - previousMessage.timestamp) / speed;
+          if (delay > 0) {
+            await new Promise(resolve => setTimeout(resolve, delay));
+          }
+        }
+
+        // Replay the message
+        if (sessionMessage.direction === 'client-to-server') {
+          await this.replayClientMessage(sessionMessage.message as JSONRPCRequest);
+        } else {
+          await this.replayServerMessage(sessionMessage.message);
+        }
+
+        messagesPlayed++;
+
+        // Call onMessage callback if provided
+        if (onMessage) {
+          await onMessage(sessionMessage);
+        }
+      }
+    } catch (error) {
+      errors.push(`Playback error: ${error instanceof Error ? error.message : String(error)}`);
+    }
+
+    const duration = Date.now() - startTime;
+
+    return {
+      success: errors.length === 0,
+      messagesPlayed,
+      errors,
+      warnings,
+      duration,
+    };
+  }
+
+  /**
+   * Replay a client-to-server message
+   */
+  private async replayClientMessage(message: JSONRPCRequest): Promise<void> {
+    if (!this.host) {
+      throw new Error('No host configured for playback');
+    }
+
+    // Send the request through the host
+    await this.host.sendRequest(message.method, message.params);
+  }
+
+  /**
+   * Replay a server-to-client message
+   */
+  private async replayServerMessage(
+    message: JSONRPCResponse | JSONRPCNotification
+  ): Promise<void> {
+    if (!this.host) {
+      throw new Error('No host configured for playback');
+    }
+
+    // For responses, we mock them in the interceptor
+    if ('id' in message && ('result' in message || 'error' in message)) {
+      // This is a response - it would normally be generated by the server
+      // In playback mode, we can verify it matches expected responses
+      // or use it to set up mocks
+    }
+  }
+
+  /**
+   * Compare two sessions for differences
+   */
+  static compareSessions(
+    session1: RecordedSession,
+    session2: RecordedSession
+  ): {
+    identical: boolean;
+    differences: string[];
+  } {
+    const differences: string[] = [];
+
+    // Compare message counts
+    if (session1.messages.length !== session2.messages.length) {
+      differences.push(
+        `Message count differs: ${session1.messages.length} vs ${session2.messages.length}`
+      );
+    }
+
+    // Compare metadata
+    if (session1.metadata.protocolVersion !== session2.metadata.protocolVersion) {
+      differences.push(
+        `Protocol version differs: ${session1.metadata.protocolVersion} vs ${session2.metadata.protocolVersion}`
+      );
+    }
+
+    // Compare capabilities
+    const caps1 = JSON.stringify(session1.capabilities || {});
+    const caps2 = JSON.stringify(session2.capabilities || {});
+    if (caps1 !== caps2) {
+      differences.push('Capabilities differ between sessions');
+    }
+
+    // Compare constraints
+    const constraints1 = JSON.stringify(session1.constraints || {});
+    const constraints2 = JSON.stringify(session2.constraints || {});
+    if (constraints1 !== constraints2) {
+      differences.push('Constraints differ between sessions');
+    }
+
+    // Compare message sequences
+    const minLength = Math.min(session1.messages.length, session2.messages.length);
+    for (let i = 0; i < minLength; i++) {
+      const msg1 = session1.messages[i];
+      const msg2 = session2.messages[i];
+
+      if (msg1.direction !== msg2.direction) {
+        differences.push(`Message ${i}: direction differs`);
+      }
+
+      const m1 = msg1.message as unknown as Record<string, unknown>;
+      const m2 = msg2.message as unknown as Record<string, unknown>;
+
+      if ('method' in m1 && 'method' in m2) {
+        if (m1.method !== m2.method) {
+          differences.push(`Message ${i}: method differs (${m1.method} vs ${m2.method})`);
+        }
+      }
+    }
+
+    return {
+      identical: differences.length === 0,
+      differences,
+    };
+  }
+
+  /**
+   * Extract host profile data from a recorded session
+   */
+  static extractHostProfile(session: RecordedSession): {
+    name: string;
+    capabilities: Record<string, unknown>;
+    constraints?: Record<string, unknown>;
+    protocolVersion: string;
+  } {
+    return {
+      name: session.metadata.hostName,
+      capabilities: session.capabilities || {},
+      constraints: session.constraints,
+      protocolVersion: session.metadata.protocolVersion,
+    };
+  }
+
+  /**
+   * Validate session integrity
+   */
+  validateSession(): { valid: boolean; errors: string[] } {
+    const errors: string[] = [];
+
+    // Check metadata
+    if (!this.session.metadata.hostName) {
+      errors.push('Missing hostName in metadata');
+    }
+    if (!this.session.metadata.protocolVersion) {
+      errors.push('Missing protocolVersion in metadata');
+    }
+
+    // Check messages
+    if (this.session.messages.length === 0) {
+      errors.push('Session has no messages');
+    }
+
+    // Validate each message
+    for (let i = 0; i < this.session.messages.length; i++) {
+      const msg = this.session.messages[i];
+      const validation = this.validator.validateMessage(msg.message);
+      if (!validation.valid) {
+        errors.push(`Message ${i} validation failed: ${validation.errors.join(', ')}`);
+      }
+    }
+
+    return {
+      valid: errors.length === 0,
+      errors,
+    };
+  }
+}

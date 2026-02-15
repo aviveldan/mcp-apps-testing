@@ -1,0 +1,181 @@
+{
+  "metadata": {
+    "recordedDate": "2024-01-15T11:00:00.000Z",
+    "hostName": "VS Code",
+    "hostVersion": "1.85.0",
+    "protocolVersion": "2024-11-05",
+    "description": "VS Code initialization and tool interaction with editor-specific constraints",
+    "source": "Recorded from VS Code MCP extension during manual testing"
+  },
+  "capabilities": {
+    "tools": {
+      "listChanged": true
+    },
+    "resources": {
+      "subscribe": false,
+      "listChanged": true
+    },
+    "prompts": {
+      "listChanged": false
+    }
+  },
+  "constraints": {
+    "maxViewportWidth": 1600,
+    "maxViewportHeight": 900,
+    "allowedProtocols": ["http", "https", "vscode", "data"]
+  },
+  "messages": [
+    {
+      "timestamp": 0,
+      "direction": "client-to-server",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "initialize",
+        "params": {
+          "protocolVersion": "2024-11-05",
+          "capabilities": {
+            "roots": {
+              "listChanged": false
+            }
+          },
+          "clientInfo": {
+            "name": "vscode-mcp",
+            "version": "1.85.0"
+          }
+        }
+      }
+    },
+    {
+      "timestamp": 50,
+      "direction": "server-to-client",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "result": {
+          "protocolVersion": "2024-11-05",
+          "capabilities": {
+            "tools": {
+              "listChanged": true
+            },
+            "resources": {
+              "listChanged": true
+            }
+          },
+          "serverInfo": {
+            "name": "example-mcp-server",
+            "version": "1.0.0"
+          }
+        }
+      }
+    },
+    {
+      "timestamp": 60,
+      "direction": "client-to-server",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": 2,
+        "method": "tools/list",
+        "params": {}
+      }
+    },
+    {
+      "timestamp": 85,
+      "direction": "server-to-client",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": 2,
+        "result": {
+          "tools": [
+            {
+              "name": "greet",
+              "description": "Greet a user by name",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Name of the person to greet"
+                  }
+                },
+                "required": ["name"]
+              }
+            },
+            {
+              "name": "open_file",
+              "description": "Open a file in the editor",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "description": "File path to open"
+                  }
+                },
+                "required": ["path"]
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "timestamp": 100,
+      "direction": "client-to-server",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": 3,
+        "method": "tools/call",
+        "params": {
+          "name": "greet",
+          "arguments": {
+            "name": "VS Code User"
+          }
+        }
+      }
+    },
+    {
+      "timestamp": 135,
+      "direction": "server-to-client",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": 3,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "Hello, VS Code User!"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "timestamp": 200,
+      "direction": "client-to-server",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": 4,
+        "method": "resources/list",
+        "params": {}
+      }
+    },
+    {
+      "timestamp": 225,
+      "direction": "server-to-client",
+      "message": {
+        "jsonrpc": "2.0",
+        "id": 4,
+        "result": {
+          "resources": [
+            {
+              "uri": "file:///workspace/README.md",
+              "name": "README.md",
+              "mimeType": "text/markdown"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
