@@ -176,9 +176,7 @@ export class ReferenceHost {
    * Clean up the reference host.
    */
   async cleanup(): Promise<void> {
-    await this.page.evaluate(() => {
-      (window as unknown as { __mcpReceivedMessages: unknown[] }).__mcpReceivedMessages = [];
-    });
+    await this.clearMessages();
   }
 
   // ── Private ──────────────────────────────────────────────────
