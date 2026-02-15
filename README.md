@@ -37,7 +37,7 @@ await host.callTool('greet', { name: 'World' });
 ```
 
 **What Makes It Unique**
-- **Mock Host Profiles**: Unit test with simulated host profiles (VSCode, Generic) that provide different capabilities and themes
+- **Mock Host Profiles**: Unit test with simulated host profiles (VSCode, Claude-like, Generic) that provide different capabilities and themes
 - **Full Control**: Mock, intercept, and assert on every JSON-RPC message
 - **Reference Implementation**: Browser-based E2E testing with a spec-compliant MCP ext-app host (ReferenceHost)
 - **Real VS Code E2E**: Test MCP tools through Copilot Chat in a real VS Code instance with Playwright Electron (VSCodeHost)
@@ -84,7 +84,8 @@ test('MCP app responds to tool calls', async () => {
 ### Mock Host Profiles for Unit Testing
 Test your MCP app with simulated host environments that provide different capabilities and themes:
 ```typescript
-new MockMCPHost({ hostProfile: 'VSCode' })  // Simulates VS Code-like environment
+new MockMCPHost({ hostProfile: 'VSCode' })   // Simulates VS Code-like environment
+new MockMCPHost({ hostProfile: 'Claude' })   // Simulates Claude-like environment
 new MockMCPHost({ hostProfile: 'Generic' })  // Generic MCP host simulation
 ```
 
@@ -125,7 +126,7 @@ graph TD
     TI -->|Used by| Mock[MockMCPHost<br/>Simulated Host for Unit Testing<br/>Auto-respond to Protocol Messages<br/>Fluent DSL Methods]
     
     PW -->|Controls| Mock
-    Mock -->|Uses| Profiles[Host Profiles<br/>• VSCode simulation<br/>• Generic simulation]
+    Mock -->|Uses| Profiles[Host Profiles<br/>• VSCode simulation<br/>• Claude-like simulation<br/>• Generic simulation]
     
     App -->|postMessage| Ref[ReferenceHost<br/>Spec-Compliant Browser Host<br/>Real iframe + postMessage<br/>E2E Testing]
     
@@ -150,9 +151,9 @@ graph TD
 ```
 
 **Core Components**
-- **MockMCPHost**: Simulated MCP host for unit testing with auto-response to common protocol messages. Use host profiles (VSCode, Generic) to test with different capabilities and themes.
+- **MockMCPHost**: Simulated MCP host for unit testing with auto-response to common protocol messages. Use host profiles (VSCode, Claude-like, Generic) to test with different capabilities and themes.
 - **TransportInterceptor**: Mocks and records JSON-RPC messages for testing and assertions
-- **Host Profiles**: Pre-configured simulated environments (VSCode, Generic) with capabilities and themes for unit testing
+- **Host Profiles**: Pre-configured simulated environments (VSCode, Claude-like, Generic) with capabilities and themes for unit testing
 - **ReferenceHost**: Spec-compliant browser-based MCP ext-app host for E2E testing. Implements the postMessage protocol in a real browser with iframe sandboxing.
 - **VSCodeHost**: Real VS Code E2E testing via Playwright Electron. Launch VS Code, interact with Copilot Chat, and test MCP tools in a 100% production environment.
 

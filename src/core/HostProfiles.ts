@@ -30,7 +30,7 @@ export interface HostProfile {
 }
 
 /**
- * Generic simulated host profile
+ * Claude-like simulated host profile
  * 
  * This is a simulated profile for unit testing, inspired by Claude-like capabilities
  * and theming, but NOT a connection to or simulation of actual Claude Desktop.
