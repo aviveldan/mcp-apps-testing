@@ -6,7 +6,9 @@
 [![Node.js Version](https://img.shields.io/node/v/mcp-apps-testing.svg)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
 
-mcp-apps-testing is a testing framework for MCP Apps external UI (ext-apps). It validates the full lifecycle of UI components returned by MCP tools — from tool response metadata, through client UI loading, to runtime widget behavior and host communication. Unlike generic MCP testing libraries, it focuses specifically on UI rendering, iframe sandbox integration, and UI ↔ host messaging.
+mcp-apps-testing is a testing framework for MCP Apps external UI (ext-apps). It provides tools for testing MCP app UI rendering, iframe sandbox behavior, and postMessage protocol communication. The framework includes mock host environments for unit testing, a spec-compliant reference implementation for E2E browser testing, and real VS Code integration for testing in production environments.
+
+> **Note on Host Support**: This framework provides **simulated host profiles** (VSCode, Claude-like, Generic) for unit testing via `MockMCPHost`. These are NOT connections to real Claude Desktop or other IDEs. For real environment testing, use `VSCodeHost` (real VS Code via Playwright Electron) or `ReferenceHost` (spec-compliant browser implementation).
 
 ![Hello World App](docs/images/hello-world-result.png)
 
@@ -26,19 +28,19 @@ mcp-apps-testing is a testing framework for MCP Apps external UI (ext-apps). It 
 
 ## Why mcp-apps-testing?
 
-Building MCP applications? You need to test more than just the protocol—you need to verify UI rendering, sandboxing behavior, and real-world interactions across different host environments (Claude, VS Code, etc.). **This is the framework that does all three.**
+Building MCP applications? You need to test more than just the protocol—you need to verify UI rendering, sandboxing behavior, and host communication. **This framework provides three testing approaches: unit testing with mocks, browser-based E2E testing with a reference implementation, and real VS Code integration testing.**
 
-**Zero-Config Testing**
+**Zero-Config Unit Testing**
 ```typescript
-const host = new MockMCPHost({ hostProfile: 'Claude' });
+const host = new MockMCPHost({ hostProfile: 'VSCode' });
 await host.callTool('greet', { name: 'World' });
 ```
 
 **What Makes It Unique**
-- **Host Simulation**: Test against Claude, VS Code, or custom IDE profiles with different capabilities and themes
+- **Mock Host Profiles**: Unit test with simulated host profiles (VSCode, Claude-like, Generic) that provide different capabilities and themes
 - **Full Control**: Mock, intercept, and assert on every JSON-RPC message
-- **UI + Protocol**: Tests both UI rendering AND protocol interactions in a single framework
-- **Real VS Code E2E**: Test MCP tools through Copilot Chat in a real VS Code instance with Playwright Electron
+- **Reference Implementation**: Browser-based E2E testing with a spec-compliant MCP ext-app host (ReferenceHost)
+- **Real VS Code E2E**: Test MCP tools through Copilot Chat in a real VS Code instance with Playwright Electron (VSCodeHost)
 - **Fluent API**: Human-readable test code with auto-retry and intelligent defaults
 
 ## Quick Start
@@ -58,7 +60,7 @@ import { test, expect } from '@playwright/test';
 import { MockMCPHost } from 'mcp-apps-testing';
 
 test('MCP app responds to tool calls', async () => {
-  const host = new MockMCPHost({ hostProfile: 'Claude' });
+  const host = new MockMCPHost({ hostProfile: 'VSCode' });
   
   // Mock the tool response
   host.getInterceptor().mockResponse('tools/call', (req) => ({
@@ -79,12 +81,15 @@ test('MCP app responds to tool calls', async () => {
 
 ## Key Features
 
-### Simulate Real IDE Environments
-Test your MCP app against different host profiles with specific capabilities, themes, and constraints:
+### Mock Host Profiles for Unit Testing
+Test your MCP app with simulated host environments that provide different capabilities and themes:
 ```typescript
-new MockMCPHost({ hostProfile: 'Claude' })  // Full MCP capabilities
-new MockMCPHost({ hostProfile: 'VSCode' })  // Editor-specific constraints
+new MockMCPHost({ hostProfile: 'VSCode' })   // Simulates VS Code-like environment
+new MockMCPHost({ hostProfile: 'Claude' })   // Simulates Claude-like environment
+new MockMCPHost({ hostProfile: 'Generic' })  // Generic MCP host simulation
 ```
+
+Note: These are **simulated profiles for unit testing**, not connections to real hosts. For real VS Code testing, use `VSCodeHost`.
 
 ### Complete Message Control
 Mock, intercept, and record every JSON-RPC interaction:
@@ -100,12 +105,13 @@ expect(requests[0].method).toBe('initialize');
 ### Test UI + Protocol Together
 Validate both visual rendering AND protocol behavior in the same test:
 ```typescript
-// Test UI rendering
-await page.goto('your-mcp-app.html');
-await expect(page.locator('h1')).toBeVisible();
+// Test UI rendering in browser with ReferenceHost
+const host = await ReferenceHost.launch(page, 'your-mcp-app.html');
+const frame = host.getAppFrame();
+await expect(frame.locator('h1')).toBeVisible();
 
 // Test protocol interaction  
-const response = await host.callTool('greet', { name: 'Test' });
+await host.sendMessage({ jsonrpc: '2.0', id: 1, result: { greeting: 'Hello' } });
 ```
 
 ## Architecture
@@ -117,27 +123,39 @@ graph TD
     
     App -->|JSON-RPC 2.0| TI[TransportInterceptor<br/>Mock & Record Messages<br/>Request/Response Interception]
     
-    TI -->|Simulated| Host[MockMCPHost<br/>Simulate IDE Environment<br/>Auto-respond to Protocol Messages<br/>Fluent DSL Methods]
+    TI -->|Used by| Mock[MockMCPHost<br/>Simulated Host for Unit Testing<br/>Auto-respond to Protocol Messages<br/>Fluent DSL Methods]
     
-    PW -->|Controls| Host
-    Host -->|Uses| Profiles[Host Profiles<br/>• Claude<br/>• VS Code<br/>• Generic]
+    PW -->|Controls| Mock
+    Mock -->|Uses| Profiles[Host Profiles<br/>• VSCode simulation<br/>• Claude-like simulation<br/>• Generic simulation]
     
-    Host --> Results[Test Results & Assertions<br/>Message Recording • Protocol Logging • Traces]
+    App -->|postMessage| Ref[ReferenceHost<br/>Spec-Compliant Browser Host<br/>Real iframe + postMessage<br/>E2E Testing]
+    
+    PW -->|Controls| Ref
+    
+    App -->|Real MCP Protocol| VSC[VSCodeHost<br/>Real VS Code Instance<br/>100% Production Environment<br/>Copilot Chat Integration]
+    
+    PW -->|Electron| VSC
+    
+    Mock --> Results[Test Results & Assertions<br/>Message Recording • Protocol Logging • Traces]
+    Ref --> Results
+    VSC --> Results
     
     style App fill:#e0e7ff,stroke:#6366f1,color:#1e293b
     style TI fill:#6366f1,stroke:#4338ca,color:#fff
-    style Host fill:#6366f1,stroke:#4338ca,color:#fff
+    style Mock fill:#8b5cf6,stroke:#7c3aed,color:#fff
+    style Ref fill:#8b5cf6,stroke:#7c3aed,color:#fff
+    style VSC fill:#10b981,stroke:#059669,color:#fff
     style Profiles fill:#e0e7ff,stroke:#6366f1,color:#1e293b
     style PW fill:#e0e7ff,stroke:#6366f1,color:#1e293b
     style Results fill:#e0e7ff,stroke:#6366f1,color:#1e293b
 ```
 
 **Core Components**
-- **MockMCPHost**: Simulates IDE hosting environment with auto-response to common protocol messages
+- **MockMCPHost**: Simulated MCP host for unit testing with auto-response to common protocol messages. Use host profiles (VSCode, Claude-like, Generic) to test with different capabilities and themes.
 - **TransportInterceptor**: Mocks and records JSON-RPC messages for testing and assertions
-- **Host Profiles**: Pre-configured environments (Claude, VS Code, Generic) with capabilities and themes
-- **ReferenceHost**: Browser sandbox for automated E2E testing (~90% real behavior)
-- **VSCodeHost**: Real VS Code E2E testing via Playwright Electron (100% real behavior)
+- **Host Profiles**: Pre-configured simulated environments (VSCode, Claude-like, Generic) with capabilities and themes for unit testing
+- **ReferenceHost**: Spec-compliant browser-based MCP ext-app host for E2E testing. Implements the postMessage protocol in a real browser with iframe sandboxing.
+- **VSCodeHost**: Real VS Code E2E testing via Playwright Electron. Launch VS Code, interact with Copilot Chat, and test MCP tools in a 100% production environment.
 
 ## Examples
 

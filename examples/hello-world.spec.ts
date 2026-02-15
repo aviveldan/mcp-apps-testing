@@ -6,19 +6,22 @@ import * as path from 'path';
  * Hello World MCP App - Complete Example
  * 
  * This test demonstrates:
- * 1. Zero-config setup with MockMCPHost
+ * 1. Zero-config setup with MockMCPHost (simulated host for unit testing)
  * 2. Fluent DSL methods (callTool, listTools, etc.)
- * 3. Host profile simulation (Claude, VS Code)
+ * 3. Simulated host profiles (Claude-like, VS Code) for different capabilities/themes
  * 4. Theme verification (light/dark mode)
  * 5. UI rendering and interaction testing
  * 6. Protocol logging and debugging
+ * 
+ * Note: MockMCPHost is for unit testing only. For real environment testing,
+ * see vscode-e2e.spec.ts or reference-host.spec.ts
  */
 
 test.describe('Hello World MCP App', () => {
   let host: MockMCPHost;
 
   test.beforeEach(async () => {
-    // Zero-config setup with Claude profile
+    // Zero-config setup with Claude-like simulated profile for unit testing
     host = new MockMCPHost({ 
       debug: false,
       hostProfile: 'Claude',
