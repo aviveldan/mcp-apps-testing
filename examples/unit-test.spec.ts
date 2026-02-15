@@ -22,7 +22,7 @@ test.describe('Layer 1: Unit testing with assertion helpers', () => {
   let host: MockMCPHost;
   let interceptor: TransportInterceptor;
 
-  test.beforeEach(() => {
+  test.beforeEach(async () => {
     host = new MockMCPHost({ autoRespond: true });
     interceptor = host.getInterceptor();
   });
