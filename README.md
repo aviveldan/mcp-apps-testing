@@ -5,6 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/node/v/mcp-apps-testing.svg)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
+[![CI](https://github.com/aviveldan/mcp-apps-testing/actions/workflows/ci.yml/badge.svg)](https://github.com/aviveldan/mcp-apps-testing/actions/workflows/ci.yml)
 
 mcp-apps-testing is a testing framework for MCP Apps external UI (ext-apps). It provides tools for testing MCP app UI rendering, iframe sandbox behavior, and postMessage protocol communication. The framework includes mock host environments for unit testing, a spec-compliant reference implementation for E2E browser testing, and real VS Code integration for testing in production environments.
 
@@ -184,17 +185,39 @@ npm run dev           # Development mode with watch
 
 ## Publishing
 
-This package is automatically published to npm via GitHub Actions when a new release is created.
+This package is automatically published to npm via GitHub Actions with full CI/CD automation.
 
-### Publishing a New Version
+### CI/CD Workflows
 
-1. Update the version in `package.json` following [semantic versioning](https://semver.org/)
-2. Commit and push the version change
-3. Create a new GitHub release with a tag matching the version (e.g., `v0.1.0`)
-4. The GitHub Actions workflow will automatically:
-   - Build the package
-   - Run tests
-   - Publish to npm using OIDC Trusted Publishing with provenance
+#### Continuous Integration (ci.yml)
+Runs automatically on:
+- Pull requests to `main`
+- Pushes to `main` branch
+
+Tests the package on Node.js versions 18, 20, and 22:
+- Lints TypeScript code
+- Builds the package
+- Runs all tests with Playwright
+- Uploads test results as artifacts
+
+#### Automated Release (release.yml)
+Triggered manually via GitHub Actions UI:
+
+1. Go to **Actions** → **Release** → **Run workflow**
+2. Select version bump type:
+   - `patch` - Bug fixes (0.1.1 → 0.1.2)
+   - `minor` - New features (0.1.1 → 0.2.0)
+   - `major` - Breaking changes (0.1.1 → 1.0.0)
+3. The workflow automatically:
+   - Runs all tests and linting
+   - Bumps the version in `package.json`
+   - Creates a git tag
+   - Pushes changes and tag to GitHub
+   - Creates a GitHub release
+   - Publishes to npm using OIDC Trusted Publishing with provenance
+
+#### Legacy Publish (publish.yml)
+Maintained for backwards compatibility. Publishes to npm when a GitHub release is manually created.
 
 ### Manual Publishing (if needed)
 
