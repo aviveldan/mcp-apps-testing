@@ -1,6 +1,6 @@
 {
   "name": "mcp-apps-testing",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "A professional framework for testing Model Context Protocol (MCP) UI applications with Playwright",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
